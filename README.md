@@ -38,7 +38,6 @@ PORT=18080 npm start    # default port is 8080; a local Joget Tomcat may already
 curl localhost:18080/health
 ```
 
-Docker: `docker build -t nv-kyb . && docker run -p 18080:8080 nv-kyb`. The image runs as uid 10014.
 
 `src/http.js` in each service is a copy of `_shared/http.js`. Edit the shared file, then run
 `node scripts/sync-shared.js`.
@@ -49,14 +48,13 @@ Create one **Service** component per row, all from this repository.
 
 | Component | Type | Build preset | Directory path | Port | Endpoint name | API to publish |
 |---|---|---|---|---|---|---|
-| Northvale KYB Screening | Service | Dockerfile (`Dockerfile` in the directory) | `/kyb-screening` | 8080 | `kyb-screening-api` | Northvale KYB Screening API 1.0.0 |
-| Northvale Credit Bureau | Service | Dockerfile | `/credit-bureau` | 8080 | `credit-bureau-api` | Northvale Credit Bureau API 1.0.0 |
-| Northvale Identity Provisioning | Service | Dockerfile | `/identity-provisioning` | 8080 | `identity-provisioning-api` | Northvale Identity Provisioning API 1.0.0 |
-| Northvale Workforce Calendar | Service | Dockerfile | `/workforce-calendar` | 8080 | `workforce-calendar-api` | Northvale Workforce Calendar API 1.0.0 |
+| Northvale KYB Screening | Service | NodeJS buildpack (Node 20) | `/kyb-screening` | 8080 | `kyb-screening-api` | Northvale KYB Screening API 1.0.0 |
+| Northvale Credit Bureau | Service | NodeJS buildpack (Node 20) | `/credit-bureau` | 8080 | `credit-bureau-api` | Northvale Credit Bureau API 1.0.0 |
+| Northvale Identity Provisioning | Service | NodeJS buildpack (Node 20) | `/identity-provisioning` | 8080 | `identity-provisioning-api` | Northvale Identity Provisioning API 1.0.0 |
+| Northvale Workforce Calendar | Service | NodeJS buildpack (Node 20) | `/workforce-calendar` | 8080 | `workforce-calendar-api` | Northvale Workforce Calendar API 1.0.0 |
 
 Each folder carries `.choreo/component.yaml` (schemaVersion 1.2) with one REST endpoint,
-base path `/`, Public visibility, and `schemaFilePath: openapi.yaml`. For Dockerfile builds the
-schema path is relative to the Docker context, which is the service folder.
+base path `/`, Public visibility, and `schemaFilePath: openapi.yaml`. The schema path is relative to the component directory.
 Format reference: https://wso2.com/choreo/docs/develop-components/manage-component-source-configurations/
 (endpoint attributes: https://wso2.com/choreo/docs/develop-components/configure-endpoints-body/).
 
