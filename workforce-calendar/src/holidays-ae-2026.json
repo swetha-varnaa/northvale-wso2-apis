@@ -1,0 +1,21 @@
+{
+  "country": "AE",
+  "year": 2026,
+  "note": "Approximate, for demo. Islamic holiday dates depend on moon sighting and are announced by the UAE government close to the date. Sources: UAE Cabinet resolution on official holidays (pattern of prior years) and published 2026 Hijri calendar estimates. Do not use for payroll.",
+  "weekend": ["Saturday", "Sunday"],
+  "holidays": [
+    { "date": "2026-01-01", "name": "New Year's Day", "source": "Fixed date" },
+    { "date": "2026-03-19", "name": "Eid Al Fitr (Ramadan 29)", "source": "Approximate, for demo" },
+    { "date": "2026-03-20", "name": "Eid Al Fitr", "source": "Approximate, for demo" },
+    { "date": "2026-03-21", "name": "Eid Al Fitr holiday", "source": "Approximate, for demo" },
+    { "date": "2026-05-26", "name": "Arafat Day", "source": "Approximate, for demo" },
+    { "date": "2026-05-27", "name": "Eid Al Adha", "source": "Approximate, for demo" },
+    { "date": "2026-05-28", "name": "Eid Al Adha holiday", "source": "Approximate, for demo" },
+    { "date": "2026-05-29", "name": "Eid Al Adha holiday", "source": "Approximate, for demo" },
+    { "date": "2026-06-16", "name": "Islamic New Year", "source": "Approximate, for demo" },
+    { "date": "2026-08-25", "name": "Prophet Muhammad's Birthday", "source": "Approximate, for demo" },
+    { "date": "2026-12-01", "name": "Commemoration Day", "source": "Fixed date" },
+    { "date": "2026-12-02", "name": "National Day", "source": "Fixed date" },
+    { "date": "2026-12-03", "name": "National Day holiday", "source": "Fixed date" }
+  ]
+}

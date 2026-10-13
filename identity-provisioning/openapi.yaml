@@ -1,0 +1,116 @@
+openapi: 3.0.3
+info:
+  title: Northvale Identity Provisioning API
+  version: 1.0.0
+  description: |
+    Mock joiner / leaver account provisioning for the Onboarding app. Demo data only.
+    POST returns 202 IN_PROGRESS. The first GET on the request marks it COMPLETED and
+    every account ACTIVE. DELETE disables every account (offboarding). Requests are held
+    in memory and are lost when the service restarts.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      tags: [ops]
+      responses:
+        "200": { description: Service is up, content: { application/json: { schema: { $ref: "#/components/schemas/Health" } } } }
+  /provisioning/v1/accounts:
+    post:
+      operationId: createAccounts
+      summary: Provision accounts for a new joiner
+      tags: [provisioning]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProvisionRequest" }
+            example: { employeeId: EMP-1042, fullName: Layla Haddad, email: layla.haddad@example.com, department: Relationship Banking, role: Relationship Manager, startDate: "2026-11-01", systems: [email, core-banking, crm, vpn] }
+      responses:
+        "202": { description: "Accepted; provisioning in progress", content: { application/json: { schema: { $ref: "#/components/schemas/ProvisionStatus" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /provisioning/v1/accounts/{requestId}:
+    parameters:
+      - { name: requestId, in: path, required: true, schema: { type: string }, example: PRV-3B9A0C7D21 }
+    get:
+      operationId: getAccounts
+      summary: Status of a provisioning request
+      tags: [provisioning]
+      responses:
+        "200": { description: Current status, content: { application/json: { schema: { $ref: "#/components/schemas/ProvisionStatus" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deprovisionAccounts
+      summary: Offboarding - disable every account in the request
+      tags: [provisioning]
+      responses:
+        "200": { description: Accounts disabled, content: { application/json: { schema: { $ref: "#/components/schemas/ProvisionStatus" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+components:
+  schemas:
+    ProvisionRequest:
+      type: object
+      required: [employeeId, fullName, email, department, role, startDate, systems]
+      properties:
+        employeeId: { type: string, pattern: "^[A-Za-z0-9-]{3,20}$" }
+        fullName: { type: string }
+        email: { type: string, format: email }
+        department: { type: string }
+        role: { type: string }
+        startDate: { type: string, format: date }
+        systems: { type: array, minItems: 1, items: { type: string, enum: [email, core-banking, crm, vpn] } }
+    Account:
+      type: object
+      properties:
+        system: { type: string, enum: [email, core-banking, crm, vpn] }
+        username: { type: string }
+        status: { type: string, enum: [PENDING, ACTIVE, DISABLED] }
+        entitlements: { type: array, items: { type: string } }
+    ProvisionStatus:
+      type: object
+      required: [requestId, status, accounts]
+      properties:
+        requestId: { type: string }
+        employeeId: { type: string }
+        status: { type: string, enum: [IN_PROGRESS, COMPLETED, DEPROVISIONED] }
+        startDate: { type: string, format: date }
+        accounts: { type: array, items: { $ref: "#/components/schemas/Account" } }
+        createdAt: { type: string, format: date-time }
+        completedAt: { type: string, format: date-time }
+        deprovisionedAt: { type: string, format: date-time }
+      example:
+        requestId: PRV-3B9A0C7D21
+        employeeId: EMP-1042
+        status: IN_PROGRESS
+        startDate: "2026-11-01"
+        accounts:
+          - { system: email, username: lhaddad042@northvale.example, status: PENDING, entitlements: [mailbox, calendar] }
+          - { system: core-banking, username: lhaddad042, status: PENDING, entitlements: [view-accounts, initiate-transactions] }
+        createdAt: "2026-10-13T09:30:00.000Z"
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string, enum: [VALIDATION_ERROR, INVALID_JSON, NOT_FOUND, METHOD_NOT_ALLOWED, INTERNAL_ERROR] }
+            message: { type: string }
+            details: { type: array, items: { type: string } }
+      example: { error: { code: VALIDATION_ERROR, message: Request is invalid, details: ["subject.crNumber must be 4-12 digits"] } }
+    Health:
+      type: object
+      properties:
+        status: { type: string, example: UP }
+        service: { type: string }
+  responses:
+    BadRequest:
+      description: Validation failed or body is not JSON
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    NotFound:
+      description: Resource not found
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+

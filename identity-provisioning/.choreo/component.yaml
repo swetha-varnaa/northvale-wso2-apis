@@ -1,0 +1,13 @@
+# Choreo component descriptor. Schema: https://wso2.com/choreo/docs/develop-components/manage-component-source-configurations/
+# schemaFilePath is relative to the Docker context (this folder) for Dockerfile builds.
+schemaVersion: 1.2
+endpoints:
+  - name: identity-provisioning-api
+    displayName: Identity Provisioning API
+    service:
+      basePath: /
+      port: 8080
+    type: REST
+    networkVisibilities:
+      - Public
+    schemaFilePath: openapi.yaml

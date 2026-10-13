@@ -1,0 +1,136 @@
+openapi: 3.0.3
+info:
+  title: Northvale Workforce Calendar API
+  version: 1.0.0
+  description: |
+    Mock leave-impact calculator for the HR Leave app. Demo data only. Working days use
+    the UAE weekend (Saturday and Sunday) and a 2026 UAE public-holiday list that is
+    approximate, for demo. Team coverage is fixed per department and date range.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      tags: [ops]
+      responses:
+        "200": { description: Service is up, content: { application/json: { schema: { $ref: "#/components/schemas/Health" } } } }
+  /workforce/v1/leave-impact:
+    post:
+      operationId: leaveImpact
+      summary: Working days, holidays, team coverage and payroll effect of a leave request
+      tags: [workforce]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LeaveImpactRequest" }
+            example: { employeeId: EMP-1042, department: Operations, fromDate: "2026-11-30", toDate: "2026-12-04", leaveType: annual }
+      responses:
+        "200": { description: Impact calculated, content: { application/json: { schema: { $ref: "#/components/schemas/LeaveImpact" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /workforce/v1/holidays:
+    get:
+      operationId: listHolidays
+      summary: UAE public holidays for a year (2026 only)
+      tags: [workforce]
+      parameters:
+        - { name: year, in: query, required: false, schema: { type: string, pattern: "^[0-9]{4}$", default: "2026" } }
+      responses:
+        "200": { description: Holiday calendar, content: { application/json: { schema: { $ref: "#/components/schemas/HolidayCalendar" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+components:
+  schemas:
+    LeaveImpactRequest:
+      type: object
+      required: [employeeId, department, fromDate, toDate, leaveType]
+      properties:
+        employeeId: { type: string }
+        department: { type: string }
+        fromDate: { type: string, format: date, description: Must be in 2026 }
+        toDate: { type: string, format: date, description: "On or after fromDate, in 2026" }
+        leaveType: { type: string, enum: [annual, sick, unpaid, maternity, compassionate] }
+    Holiday:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        name: { type: string }
+        source: { type: string }
+    PolicyCheck:
+      type: object
+      properties:
+        code: { type: string }
+        result: { type: string, enum: [PASS, WARN, FAIL] }
+        message: { type: string }
+    LeaveImpact:
+      type: object
+      required: [calendarDays, workingDays, publicHolidaysInRange, teamCoverage, payrollImpact, policyChecks]
+      properties:
+        employeeId: { type: string }
+        leaveType: { type: string }
+        fromDate: { type: string, format: date }
+        toDate: { type: string, format: date }
+        calendarDays: { type: integer }
+        workingDays: { type: integer }
+        weekendDays: { type: integer }
+        publicHolidaysInRange: { type: array, items: { $ref: "#/components/schemas/Holiday" } }
+        teamCoverage:
+          type: object
+          properties:
+            teamSize: { type: integer }
+            othersOffInRange: { type: integer }
+            coverageRisk: { type: string, enum: [LOW, MEDIUM, HIGH] }
+        payrollImpact:
+          type: object
+          properties:
+            paidDays: { type: integer }
+            unpaidDays: { type: integer }
+        policyChecks: { type: array, items: { $ref: "#/components/schemas/PolicyCheck" } }
+        calendarNote: { type: string }
+      example:
+        employeeId: EMP-1042
+        leaveType: annual
+        fromDate: "2026-11-30"
+        toDate: "2026-12-04"
+        calendarDays: 5
+        workingDays: 2
+        weekendDays: 0
+        publicHolidaysInRange: [{ date: "2026-12-01", name: Commemoration Day }, { date: "2026-12-02", name: National Day }, { date: "2026-12-03", name: National Day holiday }]
+        teamCoverage: { teamSize: 9, othersOffInRange: 1, coverageRisk: LOW }
+        payrollImpact: { paidDays: 2, unpaidDays: 0 }
+        policyChecks: [{ code: ANNUAL_MAX_CONSECUTIVE, result: PASS, message: Annual leave of 2 working days (limit 30 per request) }]
+    HolidayCalendar:
+      type: object
+      properties:
+        country: { type: string }
+        year: { type: integer }
+        note: { type: string }
+        weekend: { type: array, items: { type: string } }
+        holidays: { type: array, items: { $ref: "#/components/schemas/Holiday" } }
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string, enum: [VALIDATION_ERROR, INVALID_JSON, NOT_FOUND, METHOD_NOT_ALLOWED, INTERNAL_ERROR] }
+            message: { type: string }
+            details: { type: array, items: { type: string } }
+      example: { error: { code: VALIDATION_ERROR, message: Request is invalid, details: ["subject.crNumber must be 4-12 digits"] } }
+    Health:
+      type: object
+      properties:
+        status: { type: string, example: UP }
+        service: { type: string }
+  responses:
+    BadRequest:
+      description: Validation failed or body is not JSON
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    NotFound:
+      description: Resource not found
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+

@@ -1,0 +1,158 @@
+openapi: 3.0.3
+info:
+  title: Northvale KYB Screening API
+  version: 1.0.0
+  description: |
+    Mock company registry lookup and sanctions / PEP / adverse-media screening for the
+    Business Account Opening app. Demo data only. Outcome is fixed by the first digit
+    of the CR number: 7 = HIT, 5 = REVIEW, anything else = CLEAR. Registry returns 404
+    for CR numbers starting with 0.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      tags: [ops]
+      responses:
+        "200": { description: Service is up, content: { application/json: { schema: { $ref: "#/components/schemas/Health" } } } }
+  /registry/v1/companies/{crNumber}:
+    get:
+      operationId: getCompany
+      summary: Company profile from the commercial registry
+      tags: [registry]
+      parameters:
+        - { name: crNumber, in: path, required: true, schema: { type: string, pattern: "^[0-9]{4,12}$" }, example: "1234567" }
+      responses:
+        "200": { description: Company found, content: { application/json: { schema: { $ref: "#/components/schemas/Company" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /screening/v1/checks:
+    post:
+      operationId: createCheck
+      summary: Run sanctions, PEP and adverse-media screening
+      tags: [screening]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ScreeningRequest" }
+            example: { correlationId: BAO-2026-0042, subject: { type: company, crNumber: "7001234", name: Gulf Horizon Trading LLC }, checks: [sanctions, pep, adverse_media] }
+      responses:
+        "200": { description: Screening completed, content: { application/json: { schema: { $ref: "#/components/schemas/ScreeningResult" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /screening/v1/checks/{checkId}:
+    get:
+      operationId: getCheck
+      summary: Fetch an earlier screening result
+      tags: [screening]
+      parameters:
+        - { name: checkId, in: path, required: true, schema: { type: string }, example: SCR-1A2B3C4D5E }
+      responses:
+        "200": { description: Screening result, content: { application/json: { schema: { $ref: "#/components/schemas/ScreeningResult" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        name: { type: string }
+        role: { type: string }
+        appointedDate: { type: string, format: date }
+        nationality: { type: string }
+        ownershipPercent: { type: number }
+    Company:
+      type: object
+      required: [crNumber, legalName, status, incorporationDate, activities, directors, ubos]
+      properties:
+        crNumber: { type: string }
+        legalName: { type: string }
+        status: { type: string, enum: [ACTIVE, SUSPENDED] }
+        legalForm: { type: string }
+        jurisdiction: { type: string }
+        incorporationDate: { type: string, format: date }
+        registeredAddress: { type: string }
+        activities: { type: array, items: { type: object, properties: { code: { type: string }, description: { type: string } } } }
+        directors: { type: array, items: { $ref: "#/components/schemas/Person" } }
+        ubos: { type: array, items: { $ref: "#/components/schemas/Person" } }
+        source: { type: string }
+      example:
+        crNumber: "1234567"
+        legalName: Desert Pearl Technologies LLC
+        status: ACTIVE
+        legalForm: Limited Liability Company
+        jurisdiction: AE-DU
+        incorporationDate: "2015-04-12"
+        registeredAddress: Office 412, Business Bay, Dubai, UAE
+        activities: [{ code: "6201", description: Software development }]
+        directors: [{ name: Omar Haddad, role: Managing Director, appointedDate: "2015-03-01" }]
+        ubos: [{ name: Omar Haddad, nationality: AE, ownershipPercent: 60 }]
+        source: Northvale mock registry (demo data)
+    ScreeningRequest:
+      type: object
+      required: [correlationId, subject, checks]
+      properties:
+        correlationId: { type: string, description: "Caller reference, echoed back" }
+        subject:
+          type: object
+          required: [type, crNumber, name]
+          properties:
+            type: { type: string, enum: [company, individual] }
+            crNumber: { type: string, pattern: "^[0-9]{4,12}$" }
+            name: { type: string }
+        checks: { type: array, minItems: 1, items: { type: string, enum: [sanctions, pep, adverse_media] } }
+    Match:
+      type: object
+      properties:
+        list: { type: string, enum: [sanctions, pep, adverse_media] }
+        source: { type: string }
+        matchedName: { type: string }
+        matchScore: { type: integer, minimum: 0, maximum: 100 }
+        reason: { type: string }
+    ScreeningResult:
+      type: object
+      required: [checkId, status, result, score, matches, screenedAt]
+      properties:
+        checkId: { type: string }
+        correlationId: { type: string }
+        status: { type: string, enum: [COMPLETED] }
+        result: { type: string, enum: [CLEAR, HIT, REVIEW] }
+        score: { type: integer, minimum: 0, maximum: 100, description: Risk score; higher is riskier }
+        checksPerformed: { type: array, items: { type: string } }
+        matches: { type: array, items: { $ref: "#/components/schemas/Match" } }
+        screenedAt: { type: string, format: date-time }
+      example:
+        checkId: SCR-4F1C2A9B7E
+        correlationId: BAO-2026-0042
+        status: COMPLETED
+        result: HIT
+        score: 91
+        checksPerformed: [sanctions, pep, adverse_media]
+        matches: [{ list: sanctions, source: Consolidated Sanctions List (mock), matchedName: Gulf Horizon Trading LLC, matchScore: 92, reason: Exact name and jurisdiction match }]
+        screenedAt: "2026-10-13T09:30:00.000Z"
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string, enum: [VALIDATION_ERROR, INVALID_JSON, NOT_FOUND, METHOD_NOT_ALLOWED, INTERNAL_ERROR] }
+            message: { type: string }
+            details: { type: array, items: { type: string } }
+      example: { error: { code: VALIDATION_ERROR, message: Request is invalid, details: ["subject.crNumber must be 4-12 digits"] } }
+    Health:
+      type: object
+      properties:
+        status: { type: string, example: UP }
+        service: { type: string }
+  responses:
+    BadRequest:
+      description: Validation failed or body is not JSON
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    NotFound:
+      description: Resource not found
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+
