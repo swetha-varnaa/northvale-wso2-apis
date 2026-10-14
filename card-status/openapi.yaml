@@ -1,0 +1,22 @@
+openapi: 3.0.3
+info:
+  title: Northvale Card Status API
+  version: 1.0.0
+  description: Mock debit and credit card status lookup. Demo data only.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      responses:
+        '200': { description: Service is up }
+  /cards/v1/cards/4242/status:
+    get:
+      operationId: card_status_example
+      summary: Northvale Card Status example call
+      responses:
+        '200': { description: OK }
+        '400': { description: Invalid request }
+        '404': { description: Not found }

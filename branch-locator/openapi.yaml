@@ -1,0 +1,22 @@
+openapi: 3.0.3
+info:
+  title: Northvale Branch Locator API
+  version: 1.0.0
+  description: Mock branch and ATM finder for Northvale Bank. Demo data only.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      responses:
+        '200': { description: Service is up }
+  /branches/v1/branches:
+    get:
+      operationId: branch_locator_example
+      summary: Northvale Branch Locator example call
+      responses:
+        '200': { description: OK }
+        '400': { description: Invalid request }
+        '404': { description: Not found }

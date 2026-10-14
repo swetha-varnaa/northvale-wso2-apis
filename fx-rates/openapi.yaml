@@ -1,0 +1,22 @@
+openapi: 3.0.3
+info:
+  title: Northvale FX Rates API
+  version: 1.0.0
+  description: Mock foreign-exchange rates against AED. Demo data only.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      responses:
+        '200': { description: Service is up }
+  /fx/v1/rates:
+    get:
+      operationId: fx_rates_example
+      summary: Northvale FX Rates example call
+      responses:
+        '200': { description: OK }
+        '400': { description: Invalid request }
+        '404': { description: Not found }

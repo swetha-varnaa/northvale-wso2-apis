@@ -1,0 +1,13 @@
+# Choreo component descriptor. Schema: https://wso2.com/choreo/docs/develop-components/manage-component-source-configurations/
+# schemaFilePath is relative to the component directory (this folder).
+schemaVersion: 1.2
+endpoints:
+  - name: fx-rates-api
+    displayName: Northvale FX Rates API
+    service:
+      basePath: /
+      port: 8080
+    type: REST
+    networkVisibilities:
+      - Public
+    schemaFilePath: openapi.yaml

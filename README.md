@@ -13,6 +13,9 @@ same result every time. There is no auth inside the services; the Choreo gateway
 | `credit-bureau` | Loan Origination | Credit score, band, exposure and an approve / review / decline recommendation |
 | `identity-provisioning` | Onboarding | Creates a joiner's accounts in email, core banking, CRM and VPN; disables them on exit |
 | `workforce-calendar` | HR Leave | The real cost of a leave request: working days, UAE holidays, team coverage, payroll effect |
+| `fx-rates` | none (Choreo subscription demo) | AED exchange rates |
+| `branch-locator` | none (Choreo subscription demo) | Branch and ATM finder |
+| `card-status` | none (Choreo subscription demo) | Card status by last four digits |
 
 The exact request and response each Joget connector uses is in
 `/Users/varnaa/joget-dev/poc-apps/wso2-showcase/apis/api-contracts.md`.
