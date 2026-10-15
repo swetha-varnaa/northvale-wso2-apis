@@ -16,6 +16,9 @@ same result every time. There is no auth inside the services; the Choreo gateway
 | `fx-rates` | none (Choreo subscription demo) | AED exchange rates |
 | `branch-locator` | none (Choreo subscription demo) | Branch and ATM finder |
 | `card-status` | none (Choreo subscription demo) | Card status by last four digits |
+| `payment-limits` | none (Choreo subscription demo) | Daily and monthly payment limits, and an ALLOW / REVIEW check |
+| `account-statements` | none (Choreo subscription demo) | Monthly statement summary with 5 transactions |
+| `fraud-score` | none (Choreo subscription demo) | Fraud score 0-100 and band LOW / MEDIUM / HIGH |
 
 The exact request and response each Joget connector uses is in
 `/Users/varnaa/joget-dev/poc-apps/wso2-showcase/apis/api-contracts.md`.

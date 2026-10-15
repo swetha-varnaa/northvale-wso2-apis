@@ -1,0 +1,55 @@
+openapi: 3.0.3
+info:
+  title: Northvale Fraud Score API
+  version: 1.0.0
+  description: Mock transaction fraud scoring, deterministic from the inputs. Demo data only.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      security:
+        - choreoOAuth: []
+      responses:
+        '200': { description: Service is up }
+  /fraud/v1/score:
+    post:
+      operationId: scoreTransaction
+      summary: Fraud score and band for a transaction
+      security:
+        - choreoOAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [transactionId, amount, merchantCategory, country]
+              properties:
+                transactionId: { type: string, example: TXN-90001 }
+                amount: { type: number, example: 15000 }
+                merchantCategory: { type: string, example: ELECTRONICS }
+                country: { type: string, example: AE }
+      responses:
+        '200':
+          description: Score
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId: { type: string }
+                  score: { type: integer, minimum: 0, maximum: 100 }
+                  band: { type: string, enum: [LOW, MEDIUM, HIGH] }
+                  factors: { type: array, items: { type: string } }
+        '400': { description: Invalid request }
+components:
+  securitySchemes:
+    choreoOAuth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://sts.choreo.dev/oauth2/token
+          scopes: {}

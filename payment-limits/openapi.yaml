@@ -1,0 +1,80 @@
+openapi: 3.0.3
+info:
+  title: Northvale Payment Limits API
+  version: 1.0.0
+  description: Mock customer payment limits and limit checks. Demo data only.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      security:
+        - choreoOAuth: []
+      responses:
+        '200': { description: Service is up }
+  /payments/v1/limits/{customerId}:
+    get:
+      operationId: getPaymentLimits
+      summary: Daily and monthly limits and remaining amount
+      security:
+        - choreoOAuth: []
+      parameters:
+        - { name: customerId, in: path, required: true, schema: { type: string }, example: CUST-1001 }
+      responses:
+        '200':
+          description: Limits
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customerId: { type: string }
+                  currency: { type: string }
+                  dailyLimit: { type: number }
+                  monthlyLimit: { type: number }
+                  dailyRemaining: { type: number }
+                  monthlyRemaining: { type: number }
+                  asOf: { type: string }
+  /payments/v1/limits/check:
+    post:
+      operationId: checkPaymentLimit
+      summary: Check a payment amount against the customer limits
+      security:
+        - choreoOAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId, amount, currency]
+              properties:
+                customerId: { type: string, example: CUST-1001 }
+                amount: { type: number, example: 12000 }
+                currency: { type: string, example: AED }
+      responses:
+        '200':
+          description: Decision
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customerId: { type: string }
+                  amount: { type: number }
+                  currency: { type: string }
+                  decision: { type: string, enum: [ALLOW, REVIEW] }
+                  reason: { type: string }
+                  dailyRemaining: { type: number }
+                  monthlyRemaining: { type: number }
+        '400': { description: Invalid request }
+components:
+  securitySchemes:
+    choreoOAuth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://sts.choreo.dev/oauth2/token
+          scopes: {}

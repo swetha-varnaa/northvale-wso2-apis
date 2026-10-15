@@ -1,0 +1,15 @@
+{
+  "name": "northvale-fraud-score",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Northvale Bank mock API: fraud-score",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=20 <21"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  },
+  "license": "UNLICENSED"
+}
