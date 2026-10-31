@@ -1,0 +1,4 @@
+[package]
+org = "northvale"
+name = "approval_patterns"
+version = "0.1.0"
