@@ -71,11 +71,57 @@ function withDeadline(workflow:Context ctx, Req input) returns json|error {
     return first;
 }
 
+type UsersIn record {|
+    string requestId;
+    string[] approvers;
+|};
+
+type OneUserIn record {|
+    string requestId;
+    string approver;
+|};
+
+// Pattern 4a: one task for a list of named people; any one of them decides it.
+@workflow:Workflow
+function anyOfUsers(workflow:Context ctx, UsersIn input) returns json|error {
+    [string, string...] people = [input.approvers[0], ...input.approvers.slice(1)];
+    Decision d = check ctx->awaitHumanTask("anyNamedApprover", {requestId: input.requestId},
+            userRoles = (), users = people, title = "Any one of the named approvers");
+    workflow:HumanTaskCompletion? who = ctx.lastHumanTaskCompletion("anyNamedApprover");
+    return {status: d.approved ? "APPROVED" : "REJECTED", decidedBy: who?.completedBy};
+}
+
+// Pattern 4b: every named person must approve; one task per person, all at the same time.
+@workflow:Workflow
+function oneNamedReview(workflow:Context ctx, OneUserIn input) returns Decision|error {
+    return ctx->awaitHumanTask("namedReview", {requestId: input.requestId, approver: input.approver},
+            userRoles = (), users = input.approver, title = string `Approval by ${input.approver}`);
+}
+
+@workflow:Workflow
+function allOfUsers(workflow:Context ctx, UsersIn input) returns json|error {
+    string[] children = [];
+    foreach string a in input.approvers {
+        string childId = check ctx->runChildWorkflow(oneNamedReview, {requestId: input.requestId, approver: a});
+        children.push(childId);
+    }
+    map<boolean> votes = {};
+    foreach int i in 0 ..< children.length() {
+        Decision d = check ctx->waitForChildWorkflow(children[i]);
+        votes[input.approvers[i]] = d.approved;
+    }
+    boolean all = votes.toArray().every(v => v);
+    return {status: all ? "APPROVED" : "REJECTED", votes};
+}
+
 @http:ServiceConfig {cors: {allowOrigins: ["*"]}}
 service /patterns on new http:Listener(8086) {
     resource function post twoLevel(Req r) returns json|error => {workflowId: check workflow:run(twoLevel, r)};
     resource function post parallel(Req r) returns json|error => {workflowId: check workflow:run(parallelReviews, r)};
     resource function post deadline(Req r) returns json|error => {workflowId: check workflow:run(withDeadline, r)};
+
+    resource function post anyOf(UsersIn r) returns json|error => {workflowId: check workflow:run(anyOfUsers, r)};
+    resource function post allOf(UsersIn r) returns json|error => {workflowId: check workflow:run(allOfUsers, r)};
 
     resource function get tasks(string? status = "RUNNING") returns management:HumanTaskSummary[]|error {
         return management:listAllHumanTasks(status);
