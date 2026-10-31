@@ -1,0 +1,10 @@
+schemaVersion: 1.2
+endpoints:
+  - name: limit-workflow-api
+    displayName: Northvale Limit Increase Workflow
+    service:
+      basePath: /limits
+      port: 8085
+    type: REST
+    networkVisibilities:
+      - Public
