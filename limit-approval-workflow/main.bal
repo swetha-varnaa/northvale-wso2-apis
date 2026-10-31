@@ -1,7 +1,6 @@
 // Northvale daily payment limit increase: a hand-wired WSO2 Integrator durable workflow
 // with an "Await Human Task" step for the risk manager, and a WSO2 AI agent called as an activity.
 // Structure follows WSO2's module-ballerina-workflow example "human-in-the-loop".
-import ballerina/ai;
 import ballerina/http;
 import ballerina/io;
 import ballerina/workflow;
@@ -32,7 +31,9 @@ type RiskDecision record {|
     string? comment;
 |};
 
-final ai:Wso2ModelProvider riskModel = check ai:getDefaultModelProvider();
+configurable string anthropicApiKey = "";
+
+final http:Client anthropicApi = check new ("https://api.anthropic.com", timeout = 60);
 
 # Reads the account's payment history (stand-in data for the demo account).
 #
@@ -57,17 +58,18 @@ function getPaymentHistory(string accountId) returns string|error {
 function assessRisk(string companyName, decimal currentLimit, decimal requestedLimit,
         string reason, string history) returns string|error {
     io:println(string `[Activity] assessRisk(${companyName})`);
-    ai:Agent agent = check new ({
-        systemPrompt: {
-            role: "Risk analyst at Northvale Bank, corporate banking.",
-            instructions: "Write a 3-sentence assessment of a daily payment limit increase request "
-                + "for a risk manager. End with one line: 'Recommendation: approve' or 'Recommendation: decline'."
-        },
-        model: riskModel,
-        tools: []
-    });
-    return agent.run(string `Customer: ${companyName}. Current limit USD ${currentLimit}. ` +
-        string `Requested limit USD ${requestedLimit}. Reason: ${reason}. History: ${history}`);
+    string prompt = string `Customer: ${companyName}. Current daily limit USD ${currentLimit}. ` +
+        string `Requested limit USD ${requestedLimit}. Reason: ${reason}. History: ${history}`;
+    json reply = check anthropicApi->post("/v1/messages", {
+        model: "claude-sonnet-4-6",
+        max_tokens: 400,
+        system: "You are a risk analyst at Northvale Bank, corporate banking. Write a 3-sentence assessment of a daily "
+            + "payment limit increase request for a risk manager. End with one line: 'Recommendation: approve' or "
+            + "'Recommendation: decline'.",
+        messages: [{role: "user", content: prompt}]
+    }, {"x-api-key": anthropicApiKey, "anthropic-version": "2023-06-01"});
+    json[] content = check (check reply.content).ensureType();
+    return (check content[0].text).toString();
 }
 
 # Applies the approved limit (records the outcome for the demo).

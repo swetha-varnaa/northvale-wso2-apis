@@ -37,11 +37,6 @@ dependencies = [
 	{org = "ballerina", name = "url"},
 	{org = "ballerina", name = "uuid"}
 ]
-modules = [
-	{org = "ballerina", packageName = "ai", moduleName = "ai"},
-	{org = "ballerina", packageName = "ai", moduleName = "ai.intelligence"},
-	{org = "ballerina", packageName = "ai", moduleName = "ai.observe"}
-]
 
 [[package]]
 org = "ballerina"
@@ -480,7 +475,6 @@ org = "northvale"
 name = "limit_approval_workflow"
 version = "0.1.0"
 dependencies = [
-	{org = "ballerina", name = "ai"},
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "io"},
 	{org = "ballerina", name = "otel"},
