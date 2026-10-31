@@ -124,7 +124,7 @@ service /limits on new http:Listener(8085) {
     # + status - Optional status filter, for example RUNNING
     # + return - Task summaries
     resource function get tasks(string? status = "RUNNING") returns management:HumanTaskSummary[]|error {
-        return management:listAllHumanTasks(status);
+        return management:listAllHumanTasks(status, taskQueue = management:getWorkflowTaskQueue());
     }
 
     # One task's details, including the AI assessment passed as task input.
