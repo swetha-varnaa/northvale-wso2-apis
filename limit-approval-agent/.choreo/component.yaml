@@ -1,0 +1,10 @@
+schemaVersion: 1.2
+endpoints:
+  - name: limit-approval-api
+    displayName: Northvale Limit Approval Agent
+    service:
+      basePath: /limits
+      port: 8085
+    type: REST
+    networkVisibilities:
+      - Public
