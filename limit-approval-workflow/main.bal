@@ -120,6 +120,20 @@ service /limits on new http:Listener(8085) {
         return management:listPendingHumanTasks(workflowId);
     }
 
+    # Every waiting approval task (the risk manager's inbox across all requests).
+    # + status - Optional status filter, for example RUNNING
+    # + return - Task summaries
+    resource function get tasks(string? status = "RUNNING") returns management:HumanTaskSummary[]|error {
+        return management:listAllHumanTasks(status);
+    }
+
+    # One task's details, including the AI assessment passed as task input.
+    # + taskId - The human task ID
+    # + return - Task details
+    resource function get tasks/[string taskId]() returns management:HumanTaskInfo|error {
+        return management:getHumanTaskInfo(taskId);
+    }
+
     resource function post tasks/[string taskId]/complete(@http:Payload RiskDecision decision)
             returns record {|string status;|}|error {
         check workflow:completeHumanTask(taskId, decision);
