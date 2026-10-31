@@ -108,6 +108,7 @@ function limitIncrease(workflow:Context ctx, LimitRequest input) returns LimitRe
             message: string `${decision.comment ?: "Approved"} (${ref})`};
 }
 
+@http:ServiceConfig {cors: {allowOrigins: ["*"], allowMethods: ["GET", "POST", "OPTIONS"], allowHeaders: ["Content-Type"]}}
 service /limits on new http:Listener(8085) {
 
     resource function post requests(@http:Payload LimitRequest input) returns record {|string workflowId;|}|error {
