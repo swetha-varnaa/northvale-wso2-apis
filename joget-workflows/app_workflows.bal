@@ -9,6 +9,7 @@ type AppCase record {|
     string recordId;
     string requester;
     int deadlineSeconds = 86400;
+    string? reference = ();
 |};
 
 # A reviewer's decision, sent from the Joget inbox as the task result.
@@ -27,6 +28,13 @@ type Resubmission record {|
     string? comment = ();
 |};
 
+// Inbox title: "<App label> <reference>" when Joget sends a reference. Runs started without one keep
+// the exact title they were started with, so their replay is unchanged.
+function taskTitle(AppCase c, string label, string withoutReference) returns string {
+    string? ref = c.reference;
+    return ref is string && ref.trim() != "" ? string `${label} ${ref}` : withoutReference;
+}
+
 function who(workflow:Context ctx, string taskName) returns string =>
     ctx.lastHumanTaskCompletion(taskName)?.completedBy ?: "unknown";
 
@@ -40,12 +48,12 @@ function bizOnboardingApproval(workflow:Context ctx, AppCase c) returns json|err
         json _ = check ctx->callActivity(writeAppStatus, {"appId": "bizOnboarding", "recordId": c.recordId, "update": {status: "Manager review"}});
         Review|workflow:HumanTaskError r = ctx->awaitHumanTask("managerReview", {recordId: c.recordId, requester: c.requester},
             userRoles = "MANAGER", excludedUsers = c.requester, administratorRoles = "WORKFLOW_ADMIN",
-            title = string `Account opening ${c.recordId}: manager review`, timeout = {seconds: <decimal>c.deadlineSeconds});
+            title = taskTitle(c, "Account opening", string `Account opening ${c.recordId}: manager review`), timeout = {seconds: <decimal>c.deadlineSeconds});
         Review d;
         if r is workflow:HumanTaskTimeoutError {
             d = check ctx->awaitHumanTask("headReview", {recordId: c.recordId, reason: "manager deadline passed"},
                 userRoles = "HEAD_OF_BRANCH", administratorRoles = "WORKFLOW_ADMIN",
-                title = string `Escalated: account opening ${c.recordId}`);
+                title = taskTitle(c, "Account opening", string `Escalated: account opening ${c.recordId}`));
         } else if r is Review {
             d = r;
         } else {
@@ -61,7 +69,7 @@ function bizOnboardingApproval(workflow:Context ctx, AppCase c) returns json|err
             "update": {status: "Returned", decision: d.decision, comment: d.comment}});
         Resubmission _ = check ctx->awaitHumanTask("officerFix", {recordId: c.recordId, comment: d.comment},
             userRoles = (), users = c.requester, administratorRoles = "WORKFLOW_ADMIN",
-            title = string `Fix returned application ${c.recordId}`);
+            title = taskTitle(c, "Account opening", string `Fix returned application ${c.recordId}`));
     }
 }
 
@@ -72,7 +80,7 @@ function wso2DeskApproval(workflow:Context ctx, AppCase c) returns json|error {
     json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2Desk", "recordId": c.recordId, "update": {status: "Submitted"}});
     Review d = check ctx->awaitHumanTask("platformReview", {recordId: c.recordId, requester: c.requester},
         userRoles = "PLATFORM_REVIEWER", excludedUsers = c.requester, administratorRoles = "WORKFLOW_ADMIN",
-        title = string `Platform request ${c.recordId}: review`);
+        title = taskTitle(c, "Platform request", string `Platform request ${c.recordId}: review`));
     if d.decision != "Approved" && d.decision != "Approve" {
         json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2Desk", "recordId": c.recordId,
             "update": {status: "Rejected", reviewer: who(ctx, "platformReview"), comment: d.comment}});
@@ -83,7 +91,7 @@ function wso2DeskApproval(workflow:Context ctx, AppCase c) returns json|error {
         "update": {status: "Ready to raise", reviewer: who(ctx, "platformReview"), comment: d.comment}});
     Resubmission _ = check ctx->awaitHumanTask("raiseInChoreo", {recordId: c.recordId},
         userRoles = (), users = c.requester, administratorRoles = "WORKFLOW_ADMIN",
-        title = string `Raise ${c.recordId} in Choreo`);
+        title = taskTitle(c, "Platform request", string `Raise ${c.recordId} in Choreo`));
     json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2Desk", "recordId": c.recordId, "update": {status: "Waiting for Choreo approval"}});
     return {recordId: c.recordId, status: "Waiting for Choreo approval"};
 }
@@ -96,13 +104,13 @@ function wso2HrLeaveApproval(workflow:Context ctx, AppCase c) returns json|error
     while true {
         Review|workflow:HumanTaskError r = ctx->awaitHumanTask("leaveManagerReview", {recordId: c.recordId, requester: c.requester},
             userRoles = "MANAGER", excludedUsers = c.requester, administratorRoles = "WORKFLOW_ADMIN",
-            title = string `Leave ${c.recordId}: manager review`, timeout = {seconds: <decimal>c.deadlineSeconds});
+            title = taskTitle(c, "Leave request", string `Leave ${c.recordId}: manager review`), timeout = {seconds: <decimal>c.deadlineSeconds});
         Review d;
         if r is workflow:HumanTaskTimeoutError {
             json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2HrLeave", "recordId": c.recordId, "update": {status: "Escalated to HR"}});
             d = check ctx->awaitHumanTask("leaveHrReview", {recordId: c.recordId, reason: "manager deadline passed"},
                 userRoles = "HR", excludedUsers = c.requester, administratorRoles = "WORKFLOW_ADMIN",
-                title = string `Escalated leave ${c.recordId}`);
+                title = taskTitle(c, "Leave request", string `Escalated leave ${c.recordId}`));
         } else if r is Review {
             d = r;
         } else {
@@ -118,7 +126,7 @@ function wso2HrLeaveApproval(workflow:Context ctx, AppCase c) returns json|error
         json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2HrLeave", "recordId": c.recordId,
             "update": {status: "Returned", decision: d.decision, comment: d.comment}});
         Resubmission _ = check ctx->awaitHumanTask("requesterFix", {recordId: c.recordId, comment: d.comment},
-            userRoles = (), users = c.requester, administratorRoles = "WORKFLOW_ADMIN", title = string `Fix returned leave ${c.recordId}`);
+            userRoles = (), users = c.requester, administratorRoles = "WORKFLOW_ADMIN", title = taskTitle(c, "Leave request", string `Fix returned leave ${c.recordId}`));
         json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2HrLeave", "recordId": c.recordId, "update": {status: "Resubmitted"}});
     }
 }
@@ -133,7 +141,7 @@ function wso2LoanApproval(workflow:Context ctx, AppCase c) returns json|error {
         json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2Loan", "recordId": c.recordId, "update": {status: "Underwriting"}});
         Review d = check ctx->awaitHumanTask("underwriting", {recordId: c.recordId, requester: c.requester},
             userRoles = "UNDERWRITER", excludedUsers = c.requester, administratorRoles = "WORKFLOW_ADMIN",
-            title = string `Loan ${c.recordId}: underwriting`);
+            title = taskTitle(c, "Loan application", string `Loan ${c.recordId}: underwriting`));
         if d.decision == "Approve" || d.decision == "Decline" {
             string status = d.decision == "Approve" ? "Approved" : "Declined";
             json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2Loan", "recordId": c.recordId,
@@ -144,7 +152,7 @@ function wso2LoanApproval(workflow:Context ctx, AppCase c) returns json|error {
         json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2Loan", "recordId": c.recordId,
             "update": {status: "More information requested", comment: d.comment}});
         Resubmission _ = check ctx->awaitHumanTask("provideInfo", {recordId: c.recordId, question: d.comment},
-            userRoles = (), users = c.requester, administratorRoles = "WORKFLOW_ADMIN", title = string `Provide information for loan ${c.recordId}`);
+            userRoles = (), users = c.requester, administratorRoles = "WORKFLOW_ADMIN", title = taskTitle(c, "Loan application", string `Provide information for loan ${c.recordId}`));
         json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2Loan", "recordId": c.recordId, "update": {status: "Information received"}});
     }
 }
@@ -155,14 +163,14 @@ function wso2LoanApproval(workflow:Context ctx, AppCase c) returns json|error {
 function wso2OnboardingApproval(workflow:Context ctx, AppCase c) returns json|error {
     json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2Onboarding", "recordId": c.recordId, "update": {status: "Case opened"}});
     Resubmission _ = check ctx->awaitHumanTask("hrPreparation", {recordId: c.recordId},
-        userRoles = "HR", administratorRoles = "WORKFLOW_ADMIN", title = string `Onboarding ${c.recordId}: HR preparation`);
+        userRoles = "HR", administratorRoles = "WORKFLOW_ADMIN", title = taskTitle(c, "Onboarding", string `Onboarding ${c.recordId}: HR preparation`));
     json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2Onboarding", "recordId": c.recordId, "update": {status: "HR done, provisioning"}});
     while true {
         Resubmission _ = check ctx->awaitHumanTask("itSetup", {recordId: c.recordId},
-            userRoles = "IT", administratorRoles = "WORKFLOW_ADMIN", title = string `Onboarding ${c.recordId}: IT setup`);
+            userRoles = "IT", administratorRoles = "WORKFLOW_ADMIN", title = taskTitle(c, "Onboarding", string `Onboarding ${c.recordId}: IT setup`));
         json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2Onboarding", "recordId": c.recordId, "update": {status: "IT done, waiting for sign-off"}});
         Review d = check ctx->awaitHumanTask("managerSignoff", {recordId: c.recordId},
-            userRoles = "HIRING_MANAGER", administratorRoles = "WORKFLOW_ADMIN", title = string `Onboarding ${c.recordId}: sign-off`);
+            userRoles = "HIRING_MANAGER", administratorRoles = "WORKFLOW_ADMIN", title = taskTitle(c, "Onboarding", string `Onboarding ${c.recordId}: sign-off`));
         if d.decision == "Sign off" {
             json _ = check ctx->callActivity(writeAppStatus, {"appId": "wso2Onboarding", "recordId": c.recordId,
                 "update": {status: "Complete", signed_off_by: who(ctx, "managerSignoff")}});

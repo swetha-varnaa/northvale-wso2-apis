@@ -9,6 +9,7 @@ import ballerina/workflow;
 type MufInput record {|
     string applicationId;
     int deadlineSeconds = 120;
+    string? reference = ();
 |};
 
 # The approver's decision from the Joget inbox.
@@ -92,7 +93,11 @@ function mufApplication(workflow:Context ctx, MufInput input) returns json|error
         map<json> taskInput = {applicationId: id, routeLevel: level, amount: opt(app, "amount"),
             grade: check facts.grade, score: check facts.score, ruleVersion: version, decidingRow: decidingRow};
         workflow:Duration deadline = {seconds: <decimal>input.deadlineSeconds};
-        string title = string `MUF ${id} - ${(app["applicant"] ?: "").toString()}`;
+        // With a reference: "Financing application <reference>". Without one, the title runs started
+        // before this change already use, so their replay is unchanged.
+        string? ref = input.reference;
+        string title = ref is string && ref.trim() != "" ? string `Financing application ${ref}`
+            : string `MUF ${id} - ${(app["applicant"] ?: "").toString()}`;
         string taskName;
         MufDecision|workflow:HumanTaskError d;
         if level == "T1" {

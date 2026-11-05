@@ -34,3 +34,6 @@ With the Temporal keys and the hosting in hand:
 ## Local start and stop
 - `./start-everything-locally.sh`: Temporal 7233 (UI 8233), Mailpit SMTP 1026 (UI 8026), Management API 8234, Joget stand-in 8099.
 - `./stop-everything.sh`. Run history stays in `wso2-agents-workflow/runtime/temporal.db`.
+
+## Email switch
+Joget sends every email (V, 5 Nov). The workflows' own mail step is off: `enableEmail = false` in `Config.toml` and in the cloud config the migrate script writes. With it off, the mail step records "skipped" and sends nothing. Set it to `true` only if WSO2 should mail too; then `SMTP_*` in `migration.env` apply.

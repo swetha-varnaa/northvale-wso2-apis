@@ -12,7 +12,7 @@ mufRulesPath = "/list/list_muf_rule_api?pageSize=500"
 mufRecordPath = "/form/muf_wso2_case_view/{id}"
 mufStatusPath = "/form/muf_wso2_writeback/saveOrUpdate"
 jogetStubPort = 8099
-enableEmail = true
+enableEmail = false   # Joget sends every email (V, 5 Nov); true sends WSO2 notifications too
 smtpHost = "localhost"
 smtpPort = 1026
 smtpUser = "workflow"
