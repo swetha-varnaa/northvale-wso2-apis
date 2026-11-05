@@ -2,3 +2,7 @@ Config.toml
 target/
 *.log
 stub-data/writeback.jsonl
+migration.env
+Config.cloud.toml
+cloud-runtime.log
+joget_workflows.cloud.jar
