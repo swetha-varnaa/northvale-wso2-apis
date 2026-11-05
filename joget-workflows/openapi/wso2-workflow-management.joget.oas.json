@@ -76,12 +76,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -89,12 +85,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ]
    }
@@ -136,12 +128,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -149,12 +137,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ]
    }
@@ -194,12 +178,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -207,12 +187,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ]
    }
@@ -313,12 +289,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -326,12 +298,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -454,12 +422,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -467,12 +431,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ]
    }
@@ -494,12 +454,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -507,12 +463,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -547,12 +499,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -560,12 +508,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -600,12 +544,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -613,12 +553,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -653,12 +589,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -666,12 +598,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -706,12 +634,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -719,12 +643,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -762,12 +682,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -775,12 +691,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -815,12 +727,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -828,12 +736,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -868,12 +772,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -881,12 +781,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -921,12 +817,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -934,12 +826,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -974,12 +862,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -987,12 +871,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -1037,12 +917,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1050,12 +926,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -1094,12 +966,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1107,12 +975,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -1159,12 +1023,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1172,12 +1032,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -1215,12 +1071,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1228,12 +1080,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -1271,12 +1119,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1284,12 +1128,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -1327,12 +1167,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1340,12 +1176,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -1386,12 +1218,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1399,12 +1227,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -1442,12 +1266,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1455,12 +1275,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -1498,12 +1314,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1511,12 +1323,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -1554,12 +1362,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1567,12 +1371,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -1610,12 +1410,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1623,12 +1419,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -1676,12 +1468,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1689,12 +1477,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -1822,12 +1606,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1835,12 +1615,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -1887,12 +1663,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1900,12 +1672,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -1968,12 +1736,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -1981,12 +1745,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -2056,12 +1816,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2069,12 +1825,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -2137,12 +1889,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2150,12 +1898,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -2232,12 +1976,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2245,12 +1985,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -2297,12 +2033,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2310,12 +2042,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -2357,12 +2085,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2370,12 +2094,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -2428,12 +2148,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2441,12 +2157,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -2582,12 +2294,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2595,12 +2303,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -2642,12 +2346,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2655,12 +2355,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -2702,12 +2398,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2715,12 +2407,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -2755,12 +2443,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2768,12 +2452,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -2824,12 +2504,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2837,12 +2513,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ],
     "requestBody": {
@@ -2947,12 +2619,8 @@
       "required": false,
       "description": "Joget username, e.g. #currentUser.username#",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      },
      {
       "name": "x-user-roles",
@@ -2960,12 +2628,8 @@
       "required": false,
       "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
       "schema": {
-       "type": "array",
-       "items": {
-        "type": "string"
-       }
-      },
-      "style": "simple"
+       "type": "string"
+      }
      }
     ]
    }

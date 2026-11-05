@@ -3,10 +3,15 @@
 # Management API key      -> ~/vexa-system/.secrets/env  WSO2_WORKFLOW_MGMT_API_KEY
 # Temporal Cloud key      -> ~/vexa-system/.secrets/env  TEMPORAL_CLOUD_API_KEY
 [northvale.joget_workflows]
-jogetBaseUrl = "http://localhost:8099/joget-stub"
-jogetApiId = ""
-jogetApiKey = ""
+jogetBaseUrl = "http://localhost:8096/jw/api"   # direct Tomcat port
+jogetApiId = ""                 # JOGET_MUF_API_ID in ~/vexa-system/.secrets/wso2-joget-api.env
+jogetApiKey = ""                # JOGET_MUF_API_KEY
 enableJogetStub = true
+appsBaseUrl = "http://localhost:8099/joget-stub"
+rulesFormat = "joget"
+mufRulesPath = "/list/list_muf_rule_api?pageSize=500"
+mufRecordPath = "/form/muf_wso2_case_view/{id}"
+mufStatusPath = "/form/muf_wso2_writeback/saveOrUpdate"
 jogetStubPort = 8099
 enableEmail = true
 smtpHost = "localhost"

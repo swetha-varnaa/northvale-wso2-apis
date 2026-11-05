@@ -65,11 +65,19 @@ isolated function holds(json fact, string op, json val) returns boolean|error {
         }
         "between" => {
             json[] range = check val.ensureType();
-            decimal f = check toDecimal(fact);
+            decimal|error fe = toDecimal(fact);
+            if fe is error {
+                return false;
+            }
+            decimal f = fe;
             return f >= check toDecimal(range[0]) && f <= check toDecimal(range[1]);
         }
     }
-    decimal f = check toDecimal(fact);
+    decimal|error fe = toDecimal(fact);
+    if fe is error {
+        return false;
+    }
+    decimal f = fe;
     decimal v = check toDecimal(val);
     match op {
         "lt" => { return f < v; }
@@ -139,4 +147,90 @@ isolated function outsOf(map<json> r) returns json[]|error => (check r.outputs).
 isolated function rowCount(map<json> r) returns int|error {
     json[] rows = check (check r.rows).ensureType();
     return rows.length();
+}
+
+// ---- Joget API Builder rule rows -> the evaluator's table shape ----
+// Row: {table_code, rule_set, effective_from, row_no, group_key, condition, out_code, out_label, out_value}.
+// Condition grammar: tests joined by " and "; test = "field op value"; ops = != < <= > >= in between; "any".
+
+final readonly & map<string> HIT_POLICY = {"DT-01": "collect", "DT-02": "collect", "DT-03": "collect",
+    "DT-04": "sum", "DT-05": "unique", "DT-06": "first", "DT-07": "collect", "DT-08": "collect",
+    "DT-09": "collect", "DT-10": "unique"};
+
+final readonly & map<string> OPS = {"=": "eq", "!=": "ne", "<": "lt", "<=": "le", ">": "gt", ">=": "ge",
+    "in": "in", "between": "between"};
+
+isolated function unescape(string s) returns string {
+    string r = re `&lt;`.replaceAll(s, "<");
+    r = re `&gt;`.replaceAll(r, ">");
+    return re `&amp;`.replaceAll(r, "&");
+}
+
+isolated function parseCondition(string raw) returns json[]|error {
+    string c = unescape(raw).trim();
+    if c == "any" || c == "" {
+        return [];
+    }
+    json[] tests = [];
+    foreach string t in re ` and `.split(c) {
+        string[] p = re `\s+`.split(t.trim());
+        if p.length() < 3 {
+            return error(string `cannot read condition "${c}"`);
+        }
+        string? op = OPS[p[1]];
+        if op is () {
+            return error(string `unknown operator ${p[1]} in "${c}"`);
+        }
+        string v = string:'join(" ", ...p.slice(2));
+        json value = v;
+        if op == "in" {
+            value = re `,`.split(v).map(x => <json>x.trim());
+        } else if op == "between" {
+            string[] ab = re `\.\.`.split(v);
+            value = [ab[0], ab[1]];
+        }
+        tests.push([p[0], op, value]);
+    }
+    return tests;
+}
+
+# Builds the rule set in force on a date from Joget's flat rows: latest effective_from <= onDate.
+#
+# + data - The rows
+# + onDate - yyyy-mm-dd
+# + return - {version, effectiveFrom, tables}
+isolated function ruleSetFromJogetRows(json[] data, string onDate) returns map<json>|error {
+    string bestFrom = "";
+    foreach json r in data {
+        string ef = (check r.effective_from).toString();
+        if ef <= onDate && ef > bestFrom {
+            bestFrom = ef;
+        }
+    }
+    if bestFrom == "" {
+        return error(string `no rule set in force on ${onDate}`);
+    }
+    string version = "";
+    map<json[]> rowsBy = {};
+    foreach json r in data {
+        if (check r.effective_from).toString() != bestFrom {
+            continue;
+        }
+        version = (check r.rule_set).toString();
+        string tc = (check r.table_code).toString();
+        map<json> rm = check r.ensureType();
+        string code = (rm["out_code"] ?: "").toString();
+        json outValue = rm["out_value"];
+        json[] list = rowsBy[tc] ?: [];
+        list.push({n: check int:fromString((check r.row_no).toString()), when: check parseCondition((check r.condition).toString()),
+            out: {code, label: rm["out_label"], value: outValue, points: outValue, grade: code,
+                outcome: code == "AUTO_REJECT" ? "Auto reject" : code, username: code, route_level: code, flag: "DUP"}});
+        rowsBy[tc] = list;
+    }
+    map<json> tables = {};
+    foreach [string, json[]] [tc, rows] in rowsBy.entries() {
+        json[] sorted = from json r in rows order by <int>check r.n ascending select r;
+        tables[tc] = {hit: HIT_POLICY[tc] ?: "collect", sumField: "points", rows: sorted};
+    }
+    return {version, effectiveFrom: bestFrom, tables};
 }

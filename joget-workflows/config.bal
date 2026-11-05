@@ -7,9 +7,14 @@ configurable string jogetApiId = "";
 configurable string jogetApiKey = "";
 
 # Paths on jogetBaseUrl. {id} is replaced with the record id.
+# rulesFormat "joget" = API Builder list of flat rows with a text condition; "stub" = stub-data JSON.
+configurable string rulesFormat = "stub";
 configurable string mufRulesPath = "/muf/rules";
 configurable string mufRecordPath = "/muf/applications/{id}";
 configurable string mufStatusPath = "/muf/applications/{id}/status";
+
+# Base URL for the six apps' write-back (stays on the stub until their API Builder paths exist).
+configurable string appsBaseUrl = "http://localhost:8099/joget-stub";
 
 # Per-app status write-back path, keyed by Joget app id. {id} is replaced with the record id.
 configurable map<string> appStatusPaths = {

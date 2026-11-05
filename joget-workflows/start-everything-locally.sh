@@ -18,7 +18,9 @@ cd "$HERE"
 if [ ! -f Config.toml ]; then
   key=$(grep '^WSO2_WORKFLOW_MGMT_API_KEY=' "$HOME/vexa-system/.secrets/env" | cut -d= -f2)
   [ -n "$key" ] || { echo "WSO2_WORKFLOW_MGMT_API_KEY missing from ~/vexa-system/.secrets/env"; exit 1; }
-  sed "s|^apiKeyValue = \"\"|apiKeyValue = \"$key\"|" Config.example.toml > Config.toml
+  jid=$(grep '^JOGET_MUF_API_ID=' "$HOME/vexa-system/.secrets/wso2-joget-api.env" | cut -d= -f2)
+  jkey=$(grep '^JOGET_MUF_API_KEY=' "$HOME/vexa-system/.secrets/wso2-joget-api.env" | cut -d= -f2)
+  sed -e "s|^apiKeyValue = \"\"|apiKeyValue = \"$key\"|" -e "s|^jogetApiId = \"\"|jogetApiId = \"$jid\"|" -e "s|^jogetApiKey = \"\"|jogetApiKey = \"$jkey\"|" Config.example.toml > Config.toml
   echo "Config.toml written from Config.example.toml"
 fi
 [ -f target/bin/joget_workflows.jar ] || bal build

@@ -11,17 +11,19 @@ for f in $files; do
   [ -f "$f" ] || continue
   if grep -I -n -E "$pattern" "$f" >/dev/null 2>&1; then echo "secret-scan: key pattern in $f"; hits=1; fi
 done
-SECRETS="$HOME/vexa-system/.secrets/env"
+for SECRETS in "$HOME"/vexa-system/.secrets/env "$HOME"/vexa-system/.secrets/*.env; do
 if [ -f "$SECRETS" ]; then
   while IFS='=' read -r name value; do
     value="${value%\"}"; value="${value#\"}"
     [ ${#value} -lt 12 ] && continue
+    case "$name" in *_BASE|*_URL|*_HOST) continue;; esac
     for f in $files; do
       [ -f "$f" ] || continue
       if grep -I -F -q -- "$value" "$f" 2>/dev/null; then echo "secret-scan: value of $name found in $f"; hits=1; fi
     done
   done < <(grep -E '^[A-Za-z_][A-Za-z0-9_]*=' "$SECRETS")
 fi
+done
 if git ls-files | grep -E '(^|/)Config\.toml$' >/dev/null; then echo "secret-scan: a Config.toml is tracked"; hits=1; fi
 [ $hits -eq 0 ] && echo "secret-scan: clean ($(echo "$files" | wc -l | tr -d ' ') files)"
 exit $hits

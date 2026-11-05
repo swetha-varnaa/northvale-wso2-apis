@@ -412,6 +412,9 @@ dependencies = [
 	{org = "ballerina", name = "lang.array"},
 	{org = "ballerina", name = "lang.error"}
 ]
+modules = [
+	{org = "ballerina", packageName = "test", moduleName = "test"}
+]
 
 [[package]]
 org = "ballerina"
@@ -497,6 +500,7 @@ dependencies = [
 	{org = "ballerina", name = "lang.regexp"},
 	{org = "ballerina", name = "lang.runtime"},
 	{org = "ballerina", name = "otel"},
+	{org = "ballerina", name = "test"},
 	{org = "ballerina", name = "time"},
 	{org = "ballerina", name = "workflow"},
 	{org = "ballerinai", name = "observe"}

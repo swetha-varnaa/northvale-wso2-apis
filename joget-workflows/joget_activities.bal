@@ -6,6 +6,7 @@ import ballerina/lang.regexp;
 import ballerina/workflow;
 
 final http:Client joget = check new (jogetBaseUrl, timeout = 30);
+final http:Client appsJoget = check new (appsBaseUrl, timeout = 30);
 
 isolated function jogetHeaders() returns map<string> => {"api_id": jogetApiId, "api_key": jogetApiKey};
 
@@ -28,6 +29,12 @@ function readApplication(string applicationId) returns map<json>|error {
 @workflow:Activity
 function readRuleSet(string submitted) returns map<json>|error {
     io:println(string `[Activity] readRuleSet(${submitted})`);
+    if rulesFormat == "joget" {
+        string sep = mufRulesPath.includes("?") ? "&" : "?";
+        json page = check joget->get(string `${mufRulesPath}${sep}asOf=${submitted}`, jogetHeaders());
+        json[] data = check (check page.data).ensureType();
+        return ruleSetFromJogetRows(data, submitted);
+    }
     json all = check joget->get(mufRulesPath, jogetHeaders());
     return ruleSetFor(all, submitted);
 }
@@ -54,8 +61,24 @@ function runDecisionTable(map<json> ruleSet, string tableId, map<json> facts) re
 # + return - Joget's reply
 @workflow:Activity
 function writeMufStatus(string applicationId, map<json> update) returns json|error {
-    io:println(string `[Activity] writeMufStatus(${applicationId}) ${update.toJsonString()}`);
-    return joget->post(withId(mufStatusPath, applicationId), update, jogetHeaders());
+    // Joget's write-back form takes flat text fields only.
+    map<json> body = {id: applicationId};
+    foreach string k in ["status", "route_level", "rule_version", "decided_by", "comment", "wf_run_id"] {
+        json v = update[k];
+        if v !is () {
+            body[k] = v.toString();
+        }
+    }
+    json row = update["deciding_row"];
+    if row !is () {
+        body["deciding_row"] = string `DT-06 row ${row.toString()}`;
+    }
+    json ap = update["approvers"];
+    if ap is json[] {
+        body["approvers"] = string:'join(",", ...ap.map(a => a.toString()));
+    }
+    io:println(string `[Activity] writeMufStatus(${applicationId}) ${body.toJsonString()}`);
+    return joget->post(withId(mufStatusPath, applicationId), body, jogetHeaders());
 }
 
 # Writes a status back to any of the six apps' records in Joget.
@@ -71,7 +94,7 @@ function writeAppStatus(string appId, string recordId, map<json> update) returns
         return error(string `no status path configured for ${appId}`);
     }
     io:println(string `[Activity] writeAppStatus(${appId}, ${recordId}) ${update.toJsonString()}`);
-    return joget->post(withId(path, recordId), update, jogetHeaders());
+    return appsJoget->post(withId(path, recordId), update, jogetHeaders());
 }
 
 # Sends a notification mail (Mailpit locally).

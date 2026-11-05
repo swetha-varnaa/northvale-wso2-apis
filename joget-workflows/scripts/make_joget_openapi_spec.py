@@ -5,8 +5,8 @@ d['info']['description']=("WSO2 Integrator workflow Management API (ballerina/wo
 d['servers']=[{'url':'http://localhost:8234/workflow','description':'Local. Change to the hosted runtime URL on migration.'}]
 d['components']['securitySchemes']={'wso2WorkflowApiKey':{'type':'apiKey','in':'header','name':'x-api-key','description':'Value in ~/vexa-system/.secrets/env as WSO2_WORKFLOW_MGMT_API_KEY'}}
 d['security']=[{'wso2WorkflowApiKey':[]}]
-hdr=[{'name':'x-user-id','in':'header','required':False,'description':'Joget username, e.g. #currentUser.username#','schema':{'type':'array','items':{'type':'string'}},'style':'simple'},
-     {'name':'x-user-roles','in':'header','required':False,'description':'Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN','schema':{'type':'array','items':{'type':'string'}},'style':'simple'}]
+hdr=[{'name':'x-user-id','in':'header','required':False,'description':'Joget username, e.g. #currentUser.username#','schema':{'type':'string'}},
+     {'name':'x-user-roles','in':'header','required':False,'description':'Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN','schema':{'type':'string'}}]
 n=0
 for path,item in d['paths'].items():
     for m,op in item.items():

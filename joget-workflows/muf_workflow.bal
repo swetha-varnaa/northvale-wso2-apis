@@ -59,14 +59,15 @@ function mufApplication(workflow:Context ctx, MufInput input) returns json|error
     if outcome == "Auto reject" || outcome == "T0" {
         string status = outcome == "T0" ? "APPROVED" : "REJECTED";
         json _ = check ctx->callActivity(writeMufStatus, {"applicationId": id,
-            "update": {status, decided_by: "rules", rule_version: version, deciding_row: decidingRow}});
+            "update": {status, decided_by: "rules", route_level: outcome, rule_version: version, deciding_row: decidingRow, wf_run_id: check ctx.getWorkflowId()}});
         json _ = check ctx->callActivity(notify, {"to": (check app.preparer).toString(),
             "subject": string `${id}: ${status} by rules`, "body": string `Route ${outcome}, ${version} DT-06 row ${decidingRow.toString()}.`});
         return {applicationId: id, status, route: outcome, rule_version: version, deciding_row: decidingRow};
     }
 
     string level = outcome;
-    string[] excluded = check (check app.excluded_users).cloneWithType();
+    json exJson = app["excluded_users"];
+    string[] excluded = exJson is json[] ? check exJson.cloneWithType() : [];
     excluded.push((check app.preparer).toString());
     while true {
         facts["route_level"] = level;
@@ -91,7 +92,7 @@ function mufApplication(workflow:Context ctx, MufInput input) returns json|error
         map<json> taskInput = {applicationId: id, routeLevel: level, amount: check app.amount,
             grade: check facts.grade, score: check facts.score, ruleVersion: version, decidingRow: decidingRow};
         workflow:Duration deadline = {seconds: <decimal>input.deadlineSeconds};
-        string title = string `MUF ${id}: approve at ${level}`;
+        string title = string `MUF ${id} - ${(app["applicant"] ?: "").toString()}`;
         string taskName;
         MufDecision|workflow:HumanTaskError d;
         if level == "T1" {
