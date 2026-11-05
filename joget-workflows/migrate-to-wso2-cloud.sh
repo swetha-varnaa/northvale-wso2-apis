@@ -9,7 +9,7 @@ SECRETS="$HOME/vexa-system/.secrets/env"
 [ -f migration.env ] || { echo "migration.env missing: copy migration.env.example and fill it"; exit 1; }
 set -a; . ./migration.env; set +a
 if [ $APPLY -eq 1 ] && grep -q CHANGE_ME migration.env; then echo "migration.env still has CHANGE_ME values; fill them first"; exit 1; fi
-secret() { if [ $APPLY -eq 1 ]; then grep "^$1=" "$SECRETS" | head -1 | cut -d= -f2-; else echo "<$1>"; fi; }
+secret() { if [ $APPLY -eq 1 ]; then cat "$SECRETS" "$HOME/vexa-system/.secrets/wso2-joget-api.env" 2>/dev/null | grep "^$1=" | head -1 | cut -d= -f2-; else echo "<$1>"; fi; }
 
 render() {
 cat <<TOML
@@ -17,6 +17,8 @@ cat <<TOML
 jogetBaseUrl = "$JOGET_BASE_URL"
 jogetApiId = "$(secret "$JOGET_API_ID_SECRET_NAME")"
 jogetApiKey = "$(secret "$JOGET_API_KEY_SECRET_NAME")"
+rulesFormat = "joget"
+appsBaseUrl = "$JOGET_BASE_URL"
 mufRulesPath = "$MUF_RULES_PATH"
 mufRecordPath = "$MUF_RECORD_PATH"
 mufStatusPath = "$MUF_STATUS_PATH"
@@ -42,6 +44,12 @@ enableApiKey = true
 apiKeyHeader = "x-api-key"
 apiKeyValue = "$(secret "$MGMT_API_KEY_SECRET_NAME")"
 trustForwardedIdentity = true
+
+[northvale.joget_workflows.appApiIds]
+$(for a in wso2Desk:WSO2DESK wso2HrLeave:WSO2HRLEAVE wso2Loan:WSO2LOAN wso2Onboarding:WSO2ONBOARDING bizOnboarding:BIZONBOARDING; do echo "${a%%:*} = \"$(secret "JOGET_${a##*:}_API_ID")\""; done)
+
+[northvale.joget_workflows.appApiKeys]
+$(for a in wso2Desk:WSO2DESK wso2HrLeave:WSO2HRLEAVE wso2Loan:WSO2LOAN wso2Onboarding:WSO2ONBOARDING bizOnboarding:BIZONBOARDING; do echo "${a%%:*} = \"$(secret "JOGET_${a##*:}_API_KEY")\""; done)
 TOML
 }
 

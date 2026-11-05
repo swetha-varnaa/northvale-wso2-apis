@@ -24,7 +24,7 @@ type MufDecision record {|
 function mufApplication(workflow:Context ctx, MufInput input) returns json|error {
     string id = input.applicationId;
     map<json> app = check ctx->callActivity(readApplication, {"applicationId": id});
-    string submitted = (check app.submitted).toString();
+    string submitted = opt(app, "submitted");
     map<json> rs = check ctx->callActivity(readRuleSet, {"submitted": submitted});
     string version = (check rs.version).toString();
     map<json> facts = app.clone();
@@ -60,7 +60,7 @@ function mufApplication(workflow:Context ctx, MufInput input) returns json|error
         string status = outcome == "T0" ? "APPROVED" : "REJECTED";
         json _ = check ctx->callActivity(writeMufStatus, {"applicationId": id,
             "update": {status, decided_by: "rules", route_level: outcome, rule_version: version, deciding_row: decidingRow, wf_run_id: check ctx.getWorkflowId()}});
-        json _ = check ctx->callActivity(notify, {"to": (check app.preparer).toString(),
+        json _ = check ctx->callActivity(notify, {"to": opt(app, "preparer"),
             "subject": string `${id}: ${status} by rules`, "body": string `Route ${outcome}, ${version} DT-06 row ${decidingRow.toString()}.`});
         return {applicationId: id, status, route: outcome, rule_version: version, deciding_row: decidingRow};
     }
@@ -68,7 +68,7 @@ function mufApplication(workflow:Context ctx, MufInput input) returns json|error
     string level = outcome;
     json exJson = app["excluded_users"];
     string[] excluded = exJson is json[] ? check exJson.cloneWithType() : [];
-    excluded.push((check app.preparer).toString());
+    excluded.push(opt(app, "preparer"));
     while true {
         facts["route_level"] = level;
         map<json> ap = check ctx->callActivity(runDecisionTable, {"ruleSet": rs, "tableId": "DT-08", "facts": facts});
@@ -89,7 +89,7 @@ function mufApplication(workflow:Context ctx, MufInput input) returns json|error
             "update": {status: string `PENDING_${level}`, route_level: level, approvers: approvers,
                 approver_rows: check ap.rows, rule_version: version}});
         [string, string...] people = [approvers[0], ...approvers.slice(1)];
-        map<json> taskInput = {applicationId: id, routeLevel: level, amount: check app.amount,
+        map<json> taskInput = {applicationId: id, routeLevel: level, amount: opt(app, "amount"),
             grade: check facts.grade, score: check facts.score, ruleVersion: version, decidingRow: decidingRow};
         workflow:Duration deadline = {seconds: <decimal>input.deadlineSeconds};
         string title = string `MUF ${id} - ${(app["applicant"] ?: "").toString()}`;
@@ -122,7 +122,7 @@ function mufApplication(workflow:Context ctx, MufInput input) returns json|error
         if action == "ESCALATE" {
             map<json> nx = check ctx->callActivity(runDecisionTable, {"ruleSet": rs, "tableId": "DT-10", "facts": facts});
             string next = (check firstOut(nx, "route_level")).toString();
-            json _ = check ctx->callActivity(notify, {"to": (check app.preparer).toString(),
+            json _ = check ctx->callActivity(notify, {"to": opt(app, "preparer"),
                 "subject": string `${id}: escalated ${level} to ${next}`, "body": comment ?: ""});
             level = next;
             continue;
@@ -131,7 +131,7 @@ function mufApplication(workflow:Context ctx, MufInput input) returns json|error
         map<json> fin = {status, decided_by: decidedBy, route_level: level, comment, rule_version: version,
             deciding_row: decidingRow};
         json _ = check ctx->callActivity(writeMufStatus, {"applicationId": id, "update": fin});
-        json _ = check ctx->callActivity(notify, {"to": (check app.preparer).toString(),
+        json _ = check ctx->callActivity(notify, {"to": opt(app, "preparer"),
             "subject": string `${id}: ${status} at ${level} by ${decidedBy}`, "body": comment ?: ""});
         return {applicationId: id, status, route_level: level, decided_by: decidedBy, rule_version: version,
             deciding_row: decidingRow};

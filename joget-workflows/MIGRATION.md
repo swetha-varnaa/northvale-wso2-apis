@@ -9,7 +9,7 @@ Everything runs on V's Mac: Temporal, WSO2's workflow Management API, the MUF wo
 ## One command
 With the Temporal keys and the hosting in hand:
 1. `cp migration.env.example migration.env` and replace every `CHANGE_ME` value.
-2. Add the secrets to `~/vexa-system/.secrets/env` under the names `migration.env` gives (`TEMPORAL_CLOUD_API_KEY`, `WSO2_WORKFLOW_MGMT_API_KEY`, `JOGET_WSO2_API_ID`, `JOGET_WSO2_API_KEY`, `WORKFLOW_SMTP_PASSWORD`).
+2. Add the secrets to `~/vexa-system/.secrets/env` under the names `migration.env` gives (`TEMPORAL_CLOUD_API_KEY`, `WSO2_WORKFLOW_MGMT_API_KEY`, `JOGET_MUF_API_ID`, `JOGET_MUF_API_KEY` and `JOGET_<APP>_API_ID` / `_API_KEY` per app (in `wso2-joget-api.env`), `WORKFLOW_SMTP_PASSWORD`).
 3. `./check-migration-readiness.sh` until it prints `READY`.
 4. `./migrate-to-wso2-cloud.sh` (dry run: shows the cloud config, secrets masked), then `./migrate-to-wso2-cloud.sh --apply`.
 
@@ -28,7 +28,7 @@ With the Temporal keys and the hosting in hand:
 ## Joget values to change after the move
 1. API Connector "WSO2 workflow" base URL: `http://localhost:8234/workflow` → the hosted `MGMT_PUBLIC_URL`.
 2. API Connector `x-api-key` value: the value of `WSO2_WORKFLOW_MGMT_API_KEY`.
-3. The API Builder `api_id` / `api_key` the workflows use, on the target Joget, saved as `JOGET_WSO2_API_ID` / `JOGET_WSO2_API_KEY`.
+3. The API Builder `api_id` / `api_key` the workflows use, on the target Joget, saved as `JOGET_MUF_*` and `JOGET_<APP>_*` (WSO2DESK, WSO2HRLEAVE, WSO2LOAN, WSO2ONBOARDING, BIZONBOARDING).
 4. Any Joget form or row action that starts a run keeps the same body; only the base URL changes.
 
 ## Local start and stop

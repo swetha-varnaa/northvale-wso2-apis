@@ -5,7 +5,7 @@ set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"; cd "$HERE"
 SECRETS="$HOME/vexa-system/.secrets/env"; fail=0
 ok() { echo "PASS  $*"; }; bad() { echo "FAIL  $*"; fail=1; }
-secret() { grep "^$1=" "$SECRETS" 2>/dev/null | head -1 | cut -d= -f2-; }
+secret() { cat "$SECRETS" "$HOME/vexa-system/.secrets/wso2-joget-api.env" 2>/dev/null | grep "^$1=" | head -1 | cut -d= -f2-; }
 
 [ -f migration.env ] && ok "migration.env present" || { bad "migration.env missing (copy migration.env.example)"; }
 if [ -f migration.env ]; then
@@ -13,7 +13,12 @@ if [ -f migration.env ]; then
   grep -q CHANGE_ME migration.env && bad "migration.env still has CHANGE_ME values: $(grep '^[A-Z_]*=.*CHANGE_ME' migration.env | cut -d= -f1 | tr '\n' ' ')" || ok "migration.env filled"
   for n in "${TEMPORAL_API_KEY_SECRET_NAME:-}" "${MGMT_API_KEY_SECRET_NAME:-}" "${JOGET_API_ID_SECRET_NAME:-}" "${JOGET_API_KEY_SECRET_NAME:-}" "${SMTP_PASSWORD_SECRET_NAME:-}"; do
     [ -z "$n" ] && continue
-    [ -n "$(secret "$n")" ] && ok "secret $n present" || bad "secret $n missing from $SECRETS"
+    [ -n "$(secret "$n")" ] && ok "secret $n present" || bad "secret $n missing from ~/vexa-system/.secrets"
+  done
+  for a in ${JOGET_APP_KEY_PREFIXES:-}; do
+    for n in "JOGET_${a}_API_ID" "JOGET_${a}_API_KEY"; do
+      [ -n "$(secret "$n")" ] && ok "secret $n present" || bad "secret $n missing from ~/vexa-system/.secrets"
+    done
   done
   host="${TEMPORAL_URL%:*}"; port="${TEMPORAL_URL##*:}"
   nc -z -w 5 "$host" "$port" >/dev/null 2>&1 && ok "Temporal endpoint $TEMPORAL_URL reachable" || bad "Temporal endpoint $TEMPORAL_URL not reachable"

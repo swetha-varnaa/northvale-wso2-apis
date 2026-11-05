@@ -42,7 +42,8 @@ isolated function evaluateTable(map<json> tbl, map<json> facts, string tableId, 
         decimal total = 0;
         foreach json o in outputs {
             map<json> om = check o.ensureType();
-            total += check toDecimal(om[sumField]);
+            string pv = opt(om, sumField);
+            total += pv == "" ? 0d : check toDecimal(pv);
         }
         result["sum"] = total;
     }
@@ -202,7 +203,7 @@ isolated function parseCondition(string raw) returns json[]|error {
 isolated function ruleSetFromJogetRows(json[] data, string onDate) returns map<json>|error {
     string bestFrom = "";
     foreach json r in data {
-        string ef = (check r.effective_from).toString();
+        string ef = opt(check r.ensureType(), "effective_from");
         if ef <= onDate && ef > bestFrom {
             bestFrom = ef;
         }
@@ -213,17 +214,17 @@ isolated function ruleSetFromJogetRows(json[] data, string onDate) returns map<j
     string version = "";
     map<json[]> rowsBy = {};
     foreach json r in data {
-        if (check r.effective_from).toString() != bestFrom {
+        map<json> rm = check r.ensureType();
+        if opt(rm, "effective_from") != bestFrom {
             continue;
         }
-        version = (check r.rule_set).toString();
-        string tc = (check r.table_code).toString();
-        map<json> rm = check r.ensureType();
-        string code = (rm["out_code"] ?: "").toString();
-        json outValue = rm["out_value"];
+        version = opt(rm, "rule_set");
+        string tc = opt(rm, "table_code");
+        string code = opt(rm, "out_code");
+        json outValue = opt(rm, "out_value");
         json[] list = rowsBy[tc] ?: [];
-        list.push({n: check int:fromString((check r.row_no).toString()), when: check parseCondition((check r.condition).toString()),
-            out: {code, label: rm["out_label"], value: outValue, points: outValue, grade: code,
+        list.push({n: check int:fromString(opt(rm, "row_no")), when: check parseCondition(opt(rm, "condition")),
+            out: {code, label: opt(rm, "out_label"), value: outValue, points: outValue, grade: code,
                 outcome: code == "AUTO_REJECT" ? "Auto reject" : code, username: code, route_level: code, flag: "DUP"}});
         rowsBy[tc] = list;
     }
@@ -233,4 +234,14 @@ isolated function ruleSetFromJogetRows(json[] data, string onDate) returns map<j
         tables[tc] = {hit: HIT_POLICY[tc] ?: "collect", sumField: "points", rows: sorted};
     }
     return {version, effectiveFrom: bestFrom, tables};
+}
+
+# Reads a field that Joget may omit: its list and form APIs drop empty columns. Missing = "".
+#
+# + m - The row or record
+# + key - Field id
+# + return - The value as text, or ""
+isolated function opt(map<json> m, string key) returns string {
+    json v = m[key];
+    return v is () ? "" : v.toString();
 }

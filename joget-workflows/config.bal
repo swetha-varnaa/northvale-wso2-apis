@@ -13,18 +13,19 @@ configurable string mufRulesPath = "/muf/rules";
 configurable string mufRecordPath = "/muf/applications/{id}";
 configurable string mufStatusPath = "/muf/applications/{id}/status";
 
-# Base URL for the six apps' write-back (stays on the stub until their API Builder paths exist).
-configurable string appsBaseUrl = "http://localhost:8099/joget-stub";
-
-# Per-app status write-back path, keyed by Joget app id. {id} is replaced with the record id.
+# The apps' status write-back on Joget (API Builder, form saveOrUpdate; the record id goes in the body).
+# Set appsBaseUrl to the stub (http://localhost:8099/joget-stub) and the stub paths to fall back.
+configurable string appsBaseUrl = "http://localhost:8096/jw/api";
 configurable map<string> appStatusPaths = {
-    "wso2AppCentre": "/wso2AppCentre/records/{id}/status",
-    "bizOnboarding": "/bizOnboarding/records/{id}/status",
-    "wso2Loan": "/wso2Loan/records/{id}/status",
-    "wso2HrLeave": "/wso2HrLeave/records/{id}/status",
-    "wso2Onboarding": "/wso2Onboarding/records/{id}/status",
-    "wso2Desk": "/wso2Desk/records/{id}/status"
+    "wso2Desk": "/form/desk_wso2_writeback/saveOrUpdate",
+    "wso2HrLeave": "/form/hr_wso2_writeback/saveOrUpdate",
+    "wso2Loan": "/form/loan_wso2_writeback/saveOrUpdate",
+    "wso2Onboarding": "/form/onb_wso2_writeback/saveOrUpdate",
+    "bizOnboarding": "/form/bo_wso2_writeback/saveOrUpdate"
 };
+# Each Joget app has its own API key pair (secrets JOGET_<APP>_API_ID / _API_KEY).
+configurable map<string> appApiIds = {};
+configurable map<string> appApiKeys = {};
 
 # Local stand-in for Joget, served by this program until the Joget API Builder endpoints exist.
 configurable boolean enableJogetStub = true;

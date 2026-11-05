@@ -15,14 +15,7 @@ if up 1026; then echo "Mailpit already on 1026"; else
   sleep 2; up 1026 && echo "Mailpit started: SMTP 1026, UI http://localhost:8026"; fi
 
 cd "$HERE"
-if [ ! -f Config.toml ]; then
-  key=$(grep '^WSO2_WORKFLOW_MGMT_API_KEY=' "$HOME/vexa-system/.secrets/env" | cut -d= -f2)
-  [ -n "$key" ] || { echo "WSO2_WORKFLOW_MGMT_API_KEY missing from ~/vexa-system/.secrets/env"; exit 1; }
-  jid=$(grep '^JOGET_MUF_API_ID=' "$HOME/vexa-system/.secrets/wso2-joget-api.env" | cut -d= -f2)
-  jkey=$(grep '^JOGET_MUF_API_KEY=' "$HOME/vexa-system/.secrets/wso2-joget-api.env" | cut -d= -f2)
-  sed -e "s|^apiKeyValue = \"\"|apiKeyValue = \"$key\"|" -e "s|^jogetApiId = \"\"|jogetApiId = \"$jid\"|" -e "s|^jogetApiKey = \"\"|jogetApiKey = \"$jkey\"|" Config.example.toml > Config.toml
-  echo "Config.toml written from Config.example.toml"
-fi
+[ -f Config.toml ] || python3 scripts/write_config.py
 [ -f target/bin/joget_workflows.jar ] || bal build
 if up 8234; then echo "Workflows already on 8234"; else
   # Run a copy, so a later `bal build` cannot replace the jar under the running process.

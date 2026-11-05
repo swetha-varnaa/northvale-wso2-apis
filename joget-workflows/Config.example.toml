@@ -7,7 +7,6 @@ jogetBaseUrl = "http://localhost:8096/jw/api"   # direct Tomcat port
 jogetApiId = ""                 # JOGET_MUF_API_ID in ~/vexa-system/.secrets/wso2-joget-api.env
 jogetApiKey = ""                # JOGET_MUF_API_KEY
 enableJogetStub = true
-appsBaseUrl = "http://localhost:8099/joget-stub"
 rulesFormat = "joget"
 mufRulesPath = "/list/list_muf_rule_api?pageSize=500"
 mufRecordPath = "/form/muf_wso2_case_view/{id}"
@@ -34,3 +33,18 @@ enableApiKey = true
 apiKeyHeader = "x-api-key"
 apiKeyValue = ""               # from WSO2_WORKFLOW_MGMT_API_KEY
 trustForwardedIdentity = true  # Joget sends x-user-id / x-user-roles per call
+
+# Per-app Joget API keys, filled from ~/vexa-system/.secrets/wso2-joget-api.env by scripts/write_config.py
+[northvale.joget_workflows.appApiIds]
+wso2Desk = ""            # JOGET_WSO2DESK_API_ID
+wso2HrLeave = ""         # JOGET_WSO2HRLEAVE_API_ID
+wso2Loan = ""            # JOGET_WSO2LOAN_API_ID
+wso2Onboarding = ""      # JOGET_WSO2ONBOARDING_API_ID
+bizOnboarding = ""       # JOGET_BIZONBOARDING_API_ID
+
+[northvale.joget_workflows.appApiKeys]
+wso2Desk = ""            # JOGET_WSO2DESK_API_KEY
+wso2HrLeave = ""         # JOGET_WSO2HRLEAVE_API_KEY
+wso2Loan = ""            # JOGET_WSO2LOAN_API_KEY
+wso2Onboarding = ""      # JOGET_WSO2ONBOARDING_API_KEY
+bizOnboarding = ""       # JOGET_BIZONBOARDING_API_KEY

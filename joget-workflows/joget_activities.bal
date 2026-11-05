@@ -81,11 +81,20 @@ function writeMufStatus(string applicationId, map<json> update) returns json|err
     return joget->post(withId(mufStatusPath, applicationId), body, jogetHeaders());
 }
 
-# Writes a status back to any of the six apps' records in Joget.
+final readonly & map<string[]> APP_FIELDS = {
+    "wso2Desk": ["status", "decision", "reviewer", "comment", "wf_run_id"],
+    "wso2HrLeave": ["status", "decision", "comment", "wf_run_id"],
+    "wso2Loan": ["status", "decision", "underwriter", "comment", "wf_run_id"],
+    "wso2Onboarding": ["status", "signed_off_by", "comment", "wf_run_id"],
+    "bizOnboarding": ["status", "decision", "comment", "wf_run_id"]
+};
+
+# Writes a status back to an app's record in Joget. The id goes in the body: Joget's form API
+# updates the row with that id, and creates a new row without it.
 #
 # + appId - Joget app id
 # + recordId - Record id
-# + update - Fields to write
+# + update - Fields to write; only the app's accepted fields are sent
 # + return - Joget's reply
 @workflow:Activity
 function writeAppStatus(string appId, string recordId, map<json> update) returns json|error {
@@ -93,8 +102,16 @@ function writeAppStatus(string appId, string recordId, map<json> update) returns
     if path is () {
         return error(string `no status path configured for ${appId}`);
     }
-    io:println(string `[Activity] writeAppStatus(${appId}, ${recordId}) ${update.toJsonString()}`);
-    return appsJoget->post(withId(path, recordId), update, jogetHeaders());
+    map<json> body = {id: recordId};
+    foreach string k in APP_FIELDS[appId] ?: [] {
+        json v = update[k];
+        if v !is () {
+            body[k] = v.toString();
+        }
+    }
+    io:println(string `[Activity] writeAppStatus(${appId}, ${recordId}) ${body.toJsonString()}`);
+    return appsJoget->post(withId(path, recordId), body,
+        {"api_id": appApiIds[appId] ?: "", "api_key": appApiKeys[appId] ?: ""});
 }
 
 # Sends a notification mail (Mailpit locally).
