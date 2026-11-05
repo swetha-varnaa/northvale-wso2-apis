@@ -54,6 +54,8 @@ function runDecisionTable(map<json> ruleSet, string tableId, map<json> facts) re
     return r;
 }
 
+isolated map<map<json>> decidedHeld = {};
+
 # Writes the status and the deciding rows back to the MUF record in Joget.
 #
 # + applicationId - Record id
@@ -61,25 +63,52 @@ function runDecisionTable(map<json> ruleSet, string tableId, map<json> facts) re
 # + return - Joget's reply
 @workflow:Activity
 function writeMufStatus(string applicationId, map<json> update) returns json|error {
+    // The routing result (status DECIDED) is not written on its own: it is held and merged into
+    // the next write (PENDING_Tn or the final status), so the applicant gets one email per change.
+    // Done here, not in the workflow, so that runs already in flight replay unchanged.
+    if update["status"] == "DECIDED" {
+        lock {
+            decidedHeld[applicationId] = update.clone();
+        }
+        io:println(string `[Activity] writeMufStatus(${applicationId}) routing held for the next write`);
+        return {held: true};
+    }
+    map<json> merged = {};
+    lock {
+        map<json>? held = decidedHeld.removeIfHasKey(applicationId).clone();
+        if held is map<json> {
+            merged = held.clone();
+        }
+    }
+    foreach [string, json] [k, v] in update.entries() {
+        merged[k] = v;
+    }
+    if merged["wf_run_id"] is () {
+        merged["wf_run_id"] = string `muf-${applicationId}`;
+    }
     // Joget's write-back form takes flat text fields only.
     map<json> body = {id: applicationId};
     foreach string k in ["status", "route_level", "rule_version", "decided_by", "comment", "wf_run_id"] {
-        json v = update[k];
+        json v = merged[k];
         if v !is () {
             body[k] = v.toString();
         }
     }
-    json row = update["deciding_row"];
+    json row = merged["deciding_row"];
     if row !is () {
         body["deciding_row"] = string `DT-06 row ${row.toString()}`;
     }
-    json ap = update["approvers"];
+    json ap = merged["approvers"];
     if ap is json[] {
         body["approvers"] = string:'join(",", ...ap.map(a => a.toString()));
     }
     io:println(string `[Activity] writeMufStatus(${applicationId}) ${body.toJsonString()}`);
     return joget->post(withId(mufStatusPath, applicationId), body, jogetHeaders());
 }
+
+final readonly & map<string> APP_WORKFLOW_TYPE = {"wso2Desk": "wso2DeskApproval",
+    "wso2HrLeave": "wso2HrLeaveApproval", "wso2Loan": "wso2LoanApproval",
+    "wso2Onboarding": "wso2OnboardingApproval", "bizOnboarding": "bizOnboardingApproval"};
 
 final readonly & map<string[]> APP_FIELDS = {
     "wso2Desk": ["status", "decision", "reviewer", "comment", "wf_run_id"],
@@ -103,8 +132,13 @@ function writeAppStatus(string appId, string recordId, map<json> update) returns
         return error(string `no status path configured for ${appId}`);
     }
     map<json> body = {id: recordId};
+    // Joget starts every app run with workflowId "<workflowType>-<recordId>".
+    map<json> withRun = update.clone();
+    if withRun["wf_run_id"] is () {
+        withRun["wf_run_id"] = string `${APP_WORKFLOW_TYPE[appId] ?: appId}-${recordId}`;
+    }
     foreach string k in APP_FIELDS[appId] ?: [] {
-        json v = update[k];
+        json v = withRun[k];
         if v !is () {
             body[k] = v.toString();
         }
