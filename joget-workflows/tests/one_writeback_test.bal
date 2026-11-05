@@ -11,5 +11,6 @@ function routingIsOneWriteBack() returns error? {
     test:assertEquals(held, {held: true});
     json _ = check writeMufStatus("APP-TEST", {status: "PENDING_T2", route_level: "T2", approvers: ["tom.reyes"]});
     // Body only: the stub has no Desk path in every config, so the reply is not checked.
-    json|error _ = writeAppStatus("wso2Desk", "DSK-T", {status: "Submitted"});
+    json|error deskReply = writeAppStatus("wso2Desk", "DSK-T", {status: "Submitted"});
+    test:assertTrue(deskReply is json || deskReply is error);
 }

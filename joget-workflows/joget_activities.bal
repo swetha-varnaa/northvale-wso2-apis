@@ -1,5 +1,6 @@
 // Activities: every call to Joget or to mail is a recorded, replay-safe step.
 import ballerina/email;
+import ballerina/file;
 import ballerina/http;
 import ballerina/io;
 import ballerina/lang.regexp;
@@ -54,8 +55,6 @@ function runDecisionTable(map<json> ruleSet, string tableId, map<json> facts) re
     return r;
 }
 
-isolated map<map<json>> decidedHeld = {};
-
 # Writes the status and the deciding rows back to the MUF record in Joget.
 #
 # + applicationId - Record id
@@ -66,19 +65,17 @@ function writeMufStatus(string applicationId, map<json> update) returns json|err
     // The routing result (status DECIDED) is not written on its own: it is held and merged into
     // the next write (PENDING_Tn or the final status), so the applicant gets one email per change.
     // Done here, not in the workflow, so that runs already in flight replay unchanged.
+    // Held on disk, so a runtime restart between routing and the next write loses nothing.
+    string heldFile = string `${heldRoutingDir}/${applicationId}.json`;
     if update["status"] == "DECIDED" {
-        lock {
-            decidedHeld[applicationId] = update.clone();
-        }
+        check file:createDir(heldRoutingDir, file:RECURSIVE);
+        check io:fileWriteJson(heldFile, update);
         io:println(string `[Activity] writeMufStatus(${applicationId}) routing held for the next write`);
         return {held: true};
     }
     map<json> merged = {};
-    lock {
-        map<json>? held = decidedHeld.removeIfHasKey(applicationId).clone();
-        if held is map<json> {
-            merged = held.clone();
-        }
+    if check file:test(heldFile, file:EXISTS) {
+        merged = check (check io:fileReadJson(heldFile)).ensureType();
     }
     foreach [string, json] [k, v] in update.entries() {
         merged[k] = v;
@@ -103,7 +100,11 @@ function writeMufStatus(string applicationId, map<json> update) returns json|err
         body["approvers"] = string:'join(",", ...ap.map(a => a.toString()));
     }
     io:println(string `[Activity] writeMufStatus(${applicationId}) ${body.toJsonString()}`);
-    return joget->post(withId(mufStatusPath, applicationId), body, jogetHeaders());
+    json reply = check joget->post(withId(mufStatusPath, applicationId), body, jogetHeaders());
+    if check file:test(heldFile, file:EXISTS) {
+        check file:remove(heldFile);
+    }
+    return reply;
 }
 
 final readonly & map<string> APP_WORKFLOW_TYPE = {"wso2Desk": "wso2DeskApproval",

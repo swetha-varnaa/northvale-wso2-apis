@@ -41,3 +41,6 @@ configurable string smtpPassword = "local";
 configurable boolean smtpStartTls = false;
 configurable string mailFrom = "workflow@northvale.local";
 configurable string mailDomain = "northvale.local";
+
+# Where a MUF routing result waits for the next write-back (one email per change).
+configurable string heldRoutingDir = "held-routing";
