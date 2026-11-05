@@ -1,0 +1,31 @@
+# Copy to Config.toml (git-ignored) and fill. Secrets are named, never stored here:
+# Joget API Builder id/key -> ~/vexa-system/.secrets/env  JOGET_WSO2_API_ID / JOGET_WSO2_API_KEY
+# Management API key      -> ~/vexa-system/.secrets/env  WSO2_WORKFLOW_MGMT_API_KEY
+# Temporal Cloud key      -> ~/vexa-system/.secrets/env  TEMPORAL_CLOUD_API_KEY
+[northvale.joget_workflows]
+jogetBaseUrl = "http://localhost:8099/joget-stub"
+jogetApiId = ""
+jogetApiKey = ""
+enableJogetStub = true
+jogetStubPort = 8099
+enableEmail = true
+smtpHost = "localhost"
+smtpPort = 1026
+smtpUser = "workflow"
+smtpPassword = "local"
+smtpStartTls = false
+
+[ballerina.workflow]
+mode = "LOCAL"                 # LOCAL | CLOUD | SELF_HOSTED
+url = "localhost:7233"         # CLOUD: <namespace>.<account>.tmprl.cloud:7233
+namespace = "default"          # CLOUD: <namespace>.<account>
+taskQueue = "JOGET_WORKFLOWS_TASK_QUEUE"
+# authApiKey = ""             # CLOUD only, from TEMPORAL_CLOUD_API_KEY
+
+[ballerina.workflow.management.rest]
+port = 8234
+enableBasicAuth = false
+enableApiKey = true
+apiKeyHeader = "x-api-key"
+apiKeyValue = ""               # from WSO2_WORKFLOW_MGMT_API_KEY
+trustForwardedIdentity = true  # Joget sends x-user-id / x-user-roles per call

@@ -1,0 +1,4448 @@
+{
+ "openapi": "3.0.3",
+ "info": {
+  "title": "Workflow Management API",
+  "description": "WSO2 Integrator workflow Management API (ballerina/workflow 1.0.2, spec 0.9.0), edited for the Joget API Connector: concrete server, x-api-key security only, x-user-id and x-user-roles declared on every operation. Source: compiler-plugin workflow-management-openapi.yaml.",
+  "version": "0.9.0"
+ },
+ "servers": [
+  {
+   "url": "http://localhost:8234/workflow",
+   "description": "Local. Change to the hosted runtime URL on migration."
+  }
+ ],
+ "security": [
+  {
+   "wso2WorkflowApiKey": []
+  }
+ ],
+ "tags": [
+  {
+   "name": "runtime"
+  },
+  {
+   "name": "definitions"
+  },
+  {
+   "name": "metadata"
+  },
+  {
+   "name": "workflows"
+  },
+  {
+   "name": "human-tasks"
+  },
+  {
+   "name": "review-activities"
+  }
+ ],
+ "paths": {
+  "/runtime": {
+   "get": {
+    "tags": [
+     "runtime"
+    ],
+    "summary": "This worker's runtime state \u2014 the Temporal task queue it polls",
+    "operationId": "getRuntimeInfo",
+    "responses": {
+     "200": {
+      "description": "Runtime info",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "taskQueue": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ]
+   }
+  },
+  "/definitions": {
+   "get": {
+    "tags": [
+     "definitions"
+    ],
+    "summary": "The workflow and agent definitions this integration registered",
+    "operationId": "listDefinitions",
+    "responses": {
+     "200": {
+      "description": "Definitions",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/WorkflowDefinition"
+         }
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ]
+   }
+  },
+  "/metadata": {
+   "get": {
+    "tags": [
+     "metadata"
+    ],
+    "summary": "The program's workflow metadata document, with the build-time descriptor",
+    "description": "Everything the program registered with the workflow runtime \u2014 definitions, human tasks, activities and durable agents with their JSON schemas \u2014 and the Workflow Definition Descriptor packed into it at build time, which carries each workflow's and agent's graph. The same document a control plane receives in heartbeats.\n",
+    "operationId": "getWorkflowMetadata",
+    "responses": {
+     "200": {
+      "description": "Workflow metadata",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WorkflowMetadata"
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ]
+   }
+  },
+  "/workflows": {
+   "get": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "List workflow instances",
+    "operationId": "listWorkflowInstances",
+    "parameters": [
+     {
+      "name": "status",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "workflowType",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "workflowId",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "startedBy",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "schema": {
+       "type": "integer",
+       "default": 20
+      }
+     },
+     {
+      "name": "pageToken",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "startTimeFrom",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "startTimeTo",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "closeTimeFrom",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "closeTimeTo",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "taskQueue",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "One page of instances",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WorkflowInstancePage"
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Start a workflow instance",
+    "operationId": "startWorkflowInstance",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "workflowType"
+        ],
+        "properties": {
+         "workflowType": {
+          "type": "string"
+         },
+         "input": {
+          "description": "The workflow's input value"
+         },
+         "workflowId": {
+          "type": "string",
+          "maxLength": 255,
+          "description": "Optional caller-chosen instance id (the correlation key); ids containing '/' or '%' must be URL-encoded in paths"
+         },
+         "ifRunning": {
+          "type": "string",
+          "enum": [
+           "FAIL",
+           "USE_EXISTING",
+           "TERMINATE_EXISTING"
+          ],
+          "default": "FAIL",
+          "description": "What to do when an instance with workflowId is running"
+         },
+         "ifClosed": {
+          "type": "string",
+          "enum": [
+           "ALLOW_DUPLICATE",
+           "ALLOW_DUPLICATE_FAILED_ONLY",
+           "REJECT_DUPLICATE"
+          ],
+          "default": "ALLOW_DUPLICATE",
+          "description": "What to do when an instance with workflowId has closed; REJECT_DUPLICATE holds only while the engine retains the closed instance"
+         },
+         "timeoutSeconds": {
+          "type": "integer",
+          "description": "Whole-execution timeout in seconds"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "The started instance's handle",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WorkflowHandle"
+        }
+       }
+      }
+     },
+     "200": {
+      "description": "ifRunning was USE_EXISTING and an instance already running under workflowId was joined (started = false)",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WorkflowHandle"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "The id or a policy is not acceptable"
+     },
+     "409": {
+      "description": "The id is held by an instance the policies did not let this start replace or join"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}": {
+   "get": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Describe the latest run of an instance",
+    "operationId": "getWorkflowInstance",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/ExecutionInfo"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/suspend": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Suspend the latest run",
+    "operationId": "suspendWorkflowInstance",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/wake": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Wake a sleeping durable agent instance",
+    "operationId": "wakeWorkflowInstance",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/resume": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Resume a suspended run",
+    "operationId": "resumeWorkflowInstance",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/terminate": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Terminate the latest run",
+    "operationId": "terminateWorkflowInstance",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/TerminateBody"
+    },
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/cancel": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Cancel the latest run",
+    "operationId": "cancelWorkflowInstance",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/history": {
+   "get": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "The latest run's event history",
+    "operationId": "getWorkflowInstanceHistory",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/History"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/activity-tree": {
+   "get": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "The latest run's activity tree",
+    "operationId": "getWorkflowInstanceActivityTree",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/ActivityTree"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/reset-points": {
+   "get": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "The points the latest run can be reset to",
+    "operationId": "listWorkflowInstanceResetPoints",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/ResetPoints"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/reset": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Reset the latest run to a chosen point",
+    "operationId": "resetWorkflowInstance",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/ResetBody"
+    },
+    "responses": {
+     "200": {
+      "description": "The new run's handle",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WorkflowHandle"
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/execution-graph": {
+   "get": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "The latest run's execution graph",
+    "operationId": "getWorkflowInstanceExecutionGraph",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Graph"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/data/{dataName}": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Deliver a named data event to a running instance",
+    "description": "Names reserved for framework control signals (`__`-prefixed, `taskCompletion`, `taskDecision`) are refused, so a task cannot be completed through this route.\n",
+    "operationId": "sendDataToWorkflowInstance",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "$ref": "#/components/parameters/dataName"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "required": false,
+     "description": "The event payload, delivered verbatim",
+     "content": {
+      "application/json": {
+       "schema": {}
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/{runId}": {
+   "get": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Describe an exact run",
+    "operationId": "getWorkflowRun",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "$ref": "#/components/parameters/runId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/ExecutionInfo"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/{runId}/suspend": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Suspend an exact run",
+    "operationId": "suspendWorkflowRun",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "$ref": "#/components/parameters/runId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/{runId}/resume": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Resume an exact run",
+    "operationId": "resumeWorkflowRun",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "$ref": "#/components/parameters/runId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/{runId}/terminate": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Terminate an exact run",
+    "operationId": "terminateWorkflowRun",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "$ref": "#/components/parameters/runId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/TerminateBody"
+    },
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/{runId}/cancel": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Cancel an exact run",
+    "operationId": "cancelWorkflowRun",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "$ref": "#/components/parameters/runId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/{runId}/history": {
+   "get": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "An exact run's event history",
+    "operationId": "getWorkflowRunHistory",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "$ref": "#/components/parameters/runId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/History"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/{runId}/activity-tree": {
+   "get": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "An exact run's activity tree",
+    "operationId": "getWorkflowRunActivityTree",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "$ref": "#/components/parameters/runId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/ActivityTree"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/{runId}/reset-points": {
+   "get": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "The points an exact run can be reset to",
+    "operationId": "listWorkflowRunResetPoints",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "$ref": "#/components/parameters/runId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/ResetPoints"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/{runId}/reset": {
+   "post": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "Reset an exact run to a chosen point",
+    "operationId": "resetWorkflowRun",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "$ref": "#/components/parameters/runId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/ResetBody"
+    },
+    "responses": {
+     "200": {
+      "description": "The new run's handle",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WorkflowHandle"
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/workflows/{workflowId}/{runId}/execution-graph": {
+   "get": {
+    "tags": [
+     "workflows"
+    ],
+    "summary": "An exact run's execution graph",
+    "operationId": "getWorkflowRunExecutionGraph",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/workflowId"
+     },
+     {
+      "$ref": "#/components/parameters/runId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Graph"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/human-tasks": {
+   "get": {
+    "tags": [
+     "human-tasks"
+    ],
+    "summary": "List human tasks",
+    "operationId": "listHumanTasks",
+    "parameters": [
+     {
+      "name": "status",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "PENDING",
+        "COMPLETED",
+        "FAILED",
+        "CANCELED",
+        "TERMINATED"
+       ]
+      }
+     },
+     {
+      "name": "parentWorkflowId",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "parentWorkflowType",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "taskName",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "userRole",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "schema": {
+       "type": "integer",
+       "default": 20
+      }
+     },
+     {
+      "name": "pageToken",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "startTimeFrom",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "startTimeTo",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "closeTimeFrom",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "closeTimeTo",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "taskQueue",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "One page of tasks",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HumanTaskPage"
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/human-tasks/{taskId}/reassign": {
+   "post": {
+    "tags": [
+     "administration"
+    ],
+    "summary": "Replace a live human task's audience (administrators only)",
+    "operationId": "reassignTask",
+    "parameters": [
+     {
+      "name": "taskId",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TaskAudience"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "The act was recorded",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TaskAdministration"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "The caller does not administer the task"
+     },
+     "404": {
+      "description": "No such task"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/human-tasks/{taskId}/deadline": {
+   "post": {
+    "tags": [
+     "administration"
+    ],
+    "summary": "Move or clear a live human task's deadline (administrators only)",
+    "operationId": "extendTaskDeadline",
+    "parameters": [
+     {
+      "name": "taskId",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "timeoutMillis": {
+          "type": "integer",
+          "nullable": true,
+          "description": "Milliseconds from now; null clears the deadline"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "The act was recorded",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TaskAdministration"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "The caller does not administer the task"
+     },
+     "404": {
+      "description": "No such task"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/review-activities/{taskId}/reassign": {
+   "post": {
+    "tags": [
+     "administration"
+    ],
+    "summary": "Replace a live review's audience (administrators only)",
+    "operationId": "reassignReviewActivity",
+    "parameters": [
+     {
+      "name": "taskId",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TaskAudience"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "The act was recorded",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TaskAdministration"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "The caller does not administer the review"
+     },
+     "404": {
+      "description": "No such review activity"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/review-activities/{taskId}/deadline": {
+   "post": {
+    "tags": [
+     "administration"
+    ],
+    "summary": "Move or clear a live review's deadline (administrators only)",
+    "operationId": "extendReviewActivityDeadline",
+    "parameters": [
+     {
+      "name": "taskId",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "timeoutMillis": {
+          "type": "integer",
+          "nullable": true,
+          "description": "Milliseconds from now; null clears the deadline"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "The act was recorded",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TaskAdministration"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "The caller does not administer the review"
+     },
+     "404": {
+      "description": "No such review activity"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/human-tasks/pending-count": {
+   "get": {
+    "tags": [
+     "human-tasks"
+    ],
+    "summary": "Count pending human tasks",
+    "operationId": "countPendingHumanTasks",
+    "parameters": [
+     {
+      "name": "taskQueue",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "all",
+      "in": "query",
+      "schema": {
+       "type": "boolean"
+      },
+      "description": "Count every pending task, not only the caller's; requires the workflow manage scope"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "The count",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "count": {
+           "type": "integer"
+          }
+         }
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/human-tasks/{taskId}": {
+   "get": {
+    "tags": [
+     "human-tasks"
+    ],
+    "summary": "One human task, input included",
+    "operationId": "getHumanTask",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/taskId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "The task",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HumanTaskInfo"
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/human-tasks/{taskId}/complete": {
+   "post": {
+    "tags": [
+     "human-tasks"
+    ],
+    "summary": "Complete a human task with its typed result",
+    "operationId": "completeHumanTask",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/taskId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "result"
+        ],
+        "properties": {
+         "result": {
+          "description": "The task's result, matching its declared result type"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/human-tasks/{taskId}/fail": {
+   "post": {
+    "tags": [
+     "human-tasks"
+    ],
+    "summary": "Fail (reject) a human task with a reason",
+    "operationId": "failHumanTask",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/taskId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "reason"
+        ],
+        "properties": {
+         "reason": {
+          "type": "string"
+         },
+         "details": {
+          "type": "object",
+          "description": "Structured details for the awaiting workflow"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/review-activities": {
+   "get": {
+    "tags": [
+     "review-activities"
+    ],
+    "summary": "List review activities (approval gates and failure reviews)",
+    "operationId": "listReviewActivities",
+    "parameters": [
+     {
+      "name": "status",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "PENDING",
+        "COMPLETED",
+        "FAILED",
+        "CANCELED",
+        "TERMINATED"
+       ]
+      }
+     },
+     {
+      "name": "parentWorkflowId",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "taskName",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "schema": {
+       "type": "integer",
+       "default": 20
+      }
+     },
+     {
+      "name": "pageToken",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "startTimeFrom",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "startTimeTo",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "closeTimeFrom",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "closeTimeTo",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      }
+     },
+     {
+      "name": "taskQueue",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "One page of reviews",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ReviewActivityPage"
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/review-activities/{taskId}": {
+   "get": {
+    "tags": [
+     "review-activities"
+    ],
+    "summary": "One review activity, proposed arguments included",
+    "operationId": "getReviewActivity",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/taskId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "The review",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ReviewActivityInfo"
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/review-activities/{taskId}/proceed": {
+   "post": {
+    "tags": [
+     "review-activities"
+    ],
+    "summary": "Approve \u2014 run the activity with its proposed arguments",
+    "operationId": "proceedReviewActivity",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/taskId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/review-activities/{taskId}/proceed-with-input": {
+   "post": {
+    "tags": [
+     "review-activities"
+    ],
+    "summary": "Approve with replacement arguments",
+    "operationId": "proceedReviewActivityWithInput",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/taskId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "input": {
+          "type": "object",
+          "description": "Replacement named arguments for the activity"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/review-activities/{taskId}/reject": {
+   "post": {
+    "tags": [
+     "review-activities"
+    ],
+    "summary": "Reject \u2014 the caller decides what the refusal means",
+    "operationId": "rejectReviewActivity",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/taskId"
+     },
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ],
+    "requestBody": {
+     "required": false,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "feedback": {
+          "type": "string",
+          "description": "Fed back to the requester (an agent re-plans around it)"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/Acknowledged"
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ]
+   }
+  },
+  "/review-activities/bulk-retry": {
+   "post": {
+    "tags": [
+     "review-activities"
+    ],
+    "summary": "Retry or fail many failure reviews in one call",
+    "operationId": "bulkRetryReviewActivities",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "action"
+        ],
+        "properties": {
+         "action": {
+          "type": "string",
+          "enum": [
+           "retry",
+           "fail"
+          ]
+         },
+         "taskIds": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "parentWorkflowId": {
+          "type": "string"
+         },
+         "activityName": {
+          "type": "string"
+         },
+         "feedback": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Per-task report \u2014 returned whenever the batch was accepted",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/BulkRetryResult"
+        }
+       }
+      }
+     },
+     "default": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "security": [
+     {
+      "wso2WorkflowApiKey": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "x-user-id",
+      "in": "header",
+      "required": false,
+      "description": "Joget username, e.g. #currentUser.username#",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     },
+     {
+      "name": "x-user-roles",
+      "in": "header",
+      "required": false,
+      "description": "Comma-separated roles, e.g. APPROVER or WORKFLOW_ADMIN",
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "style": "simple"
+     }
+    ]
+   }
+  }
+ },
+ "components": {
+  "securitySchemes": {
+   "wso2WorkflowApiKey": {
+    "type": "apiKey",
+    "in": "header",
+    "name": "x-api-key",
+    "description": "Value in ~/vexa-system/.secrets/env as WSO2_WORKFLOW_MGMT_API_KEY"
+   }
+  },
+  "parameters": {
+   "workflowId": {
+    "name": "workflowId",
+    "in": "path",
+    "required": true,
+    "schema": {
+     "type": "string"
+    }
+   },
+   "runId": {
+    "name": "runId",
+    "in": "path",
+    "required": true,
+    "schema": {
+     "type": "string"
+    }
+   },
+   "taskId": {
+    "name": "taskId",
+    "in": "path",
+    "required": true,
+    "schema": {
+     "type": "string"
+    }
+   },
+   "dataName": {
+    "name": "dataName",
+    "in": "path",
+    "required": true,
+    "schema": {
+     "type": "string"
+    }
+   }
+  },
+  "requestBodies": {
+   "TerminateBody": {
+    "required": false,
+    "content": {
+     "application/json": {
+      "schema": {
+       "type": "object",
+       "properties": {
+        "reason": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   },
+   "ResetBody": {
+    "required": true,
+    "content": {
+     "application/json": {
+      "schema": {
+       "type": "object",
+       "required": [
+        "resetType"
+       ],
+       "properties": {
+        "resetType": {
+         "type": "string",
+         "enum": [
+          "first-workflow-task",
+          "last-workflow-task",
+          "workflow-task-id"
+         ]
+        },
+        "eventId": {
+         "type": "integer",
+         "description": "Required for workflow-task-id"
+        },
+        "reason": {
+         "type": "string"
+        },
+        "reapply": {
+         "type": "object",
+         "description": "Which signal/update kinds to re-deliver after the point"
+        },
+        "idempotencyKey": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "responses": {
+   "Acknowledged": {
+    "description": "The operation was accepted and executed",
+    "content": {
+     "application/json": {
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   },
+   "ExecutionInfo": {
+    "description": "The run's execution info",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/WorkflowExecutionInfo"
+      }
+     }
+    }
+   },
+   "History": {
+    "description": "The run's event history",
+    "content": {
+     "application/json": {
+      "schema": {
+       "type": "array",
+       "items": {
+        "$ref": "#/components/schemas/HistoryEvent"
+       }
+      }
+     }
+    }
+   },
+   "ActivityTree": {
+    "description": "The run's activity tree",
+    "content": {
+     "application/json": {
+      "schema": {
+       "type": "array",
+       "items": {
+        "$ref": "#/components/schemas/ActivityTreeNode"
+       }
+      }
+     }
+    }
+   },
+   "ResetPoints": {
+    "description": "The run's reset points",
+    "content": {
+     "application/json": {
+      "schema": {
+       "type": "array",
+       "items": {
+        "$ref": "#/components/schemas/ResetPoint"
+       }
+      }
+     }
+    }
+   },
+   "Graph": {
+    "description": "The run's execution graph",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/ExecutionGraph"
+      }
+     }
+    }
+   },
+   "Error": {
+    "description": "The operation failed. The body carries the machine-readable reason (management:ErrorCode) and a message; the HTTP status maps the reason (404 NOT_FOUND, 403 ACCESS_DENIED, 400 INVALID_REQUEST/INVALID_PAYLOAD, 409 CONFLICT, 500 EXECUTION_ERROR).\n",
+    "content": {
+     "application/json": {
+      "schema": {
+       "type": "object",
+       "properties": {
+        "code": {
+         "type": "string",
+         "enum": [
+          "NOT_FOUND",
+          "ACCESS_DENIED",
+          "INVALID_REQUEST",
+          "CONFLICT",
+          "INVALID_PAYLOAD",
+          "EXECUTION_ERROR"
+         ]
+        },
+        "message": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "schemas": {
+   "WorkflowMetadata": {
+    "type": "object",
+    "description": "Everything the program registered with the workflow runtime. The registrations are complete at module init; a schema the plugin could not derive statically (a human task's resultSchema) is null until that task first executes, so a client that caches the document at startup should re-read it rather than treat null as final. Every schema field is a JSON Schema document serialized as a string.\n",
+    "properties": {
+     "metadataVersion": {
+      "type": "string",
+      "description": "Version of this document's shape"
+     },
+     "definitions": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/WorkflowDefinitionMeta"
+      }
+     },
+     "humanTasks": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/HumanTaskMeta"
+      }
+     },
+     "activities": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/ActivityMeta"
+      }
+     },
+     "reviewActions": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "The static review-activity decision vocabulary"
+     },
+     "agents": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/AgentMeta"
+      }
+     },
+     "descriptor": {
+      "type": "object",
+      "nullable": true,
+      "additionalProperties": true,
+      "description": "The build-time Workflow Definition Descriptor (workflow.def.json), shaped by docs/spec/workflow-descriptor.schema.json: `workflows[]` and `agents[]`, each named by `name` and carrying its `graph` of `nodes` and `edges`. Null when the program was built without one.\n"
+     }
+    }
+   },
+   "WorkflowDefinitionMeta": {
+    "type": "object",
+    "description": "One registered workflow definition, as the metadata document describes it",
+    "properties": {
+     "workflowType": {
+      "type": "string"
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "WORKFLOW",
+       "AGENT"
+      ]
+     },
+     "displayName": {
+      "type": "string",
+      "nullable": true,
+      "description": "The @display label; for people, never an identity"
+     },
+     "icon": {
+      "type": "string",
+      "nullable": true,
+      "description": "The @display icon path"
+     },
+     "inputSchema": {
+      "type": "string",
+      "nullable": true,
+      "description": "JSON schema of the input, as a string"
+     }
+    }
+   },
+   "HumanTaskMeta": {
+    "type": "object",
+    "description": "One human task type with its completion-form schema",
+    "properties": {
+     "name": {
+      "type": "string",
+      "description": "Qualified task name, <workflowType>.<taskName>"
+     },
+     "title": {
+      "type": "string",
+      "nullable": true,
+      "description": "The task's constant title, its display name"
+     },
+     "resultSchema": {
+      "type": "string",
+      "nullable": true,
+      "description": "JSON schema of the completion form, as a string; null until the result type is known in this process"
+     }
+    }
+   },
+   "ActivityMeta": {
+    "type": "object",
+    "description": "One registered activity; its input schema backs proceed-with-input forms",
+    "properties": {
+     "workflowType": {
+      "type": "string"
+     },
+     "name": {
+      "type": "string"
+     },
+     "displayName": {
+      "type": "string",
+      "nullable": true,
+      "description": "The @display label"
+     },
+     "icon": {
+      "type": "string",
+      "nullable": true,
+      "description": "The @display icon path"
+     },
+     "inputSchema": {
+      "type": "string",
+      "nullable": true,
+      "description": "JSON schema of the data parameters, as a string"
+     }
+    }
+   },
+   "AgentMeta": {
+    "type": "object",
+    "description": "One declared durable agent",
+    "properties": {
+     "name": {
+      "type": "string",
+      "description": "The agent's module-level variable name"
+     },
+     "displayName": {
+      "type": "string",
+      "nullable": true,
+      "description": "The @display label on the agent's variable"
+     },
+     "icon": {
+      "type": "string",
+      "nullable": true,
+      "description": "The @display icon path"
+     },
+     "events": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Declared event channel names"
+     },
+     "tools": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Tool names advertised to the model"
+     },
+     "humanTasks": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Qualified names (<agent>.<task>) of the agent's human tasks"
+     }
+    }
+   },
+   "WorkflowDefinition": {
+    "type": "object",
+    "properties": {
+     "workflowType": {
+      "type": "string"
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "WORKFLOW",
+       "AGENT"
+      ]
+     },
+     "displayName": {
+      "type": "string",
+      "nullable": true,
+      "description": "The @display label; for people, never an identity"
+     },
+     "icon": {
+      "type": "string",
+      "nullable": true,
+      "description": "The @display icon path"
+     },
+     "inputSchema": {
+      "type": "string",
+      "nullable": true,
+      "description": "JSON schema of the input, as a string"
+     },
+     "isActive": {
+      "type": "boolean"
+     },
+     "workerCount": {
+      "type": "integer"
+     }
+    }
+   },
+   "WorkflowExecutionInfo": {
+    "type": "object",
+    "properties": {
+     "workflowId": {
+      "type": "string"
+     },
+     "workflowType": {
+      "type": "string"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "RUNNING",
+       "SUSPENDED",
+       "COMPLETED",
+       "FAILED",
+       "CANCELED",
+       "TERMINATED",
+       "CONTINUED_AS_NEW",
+       "TIMED_OUT",
+       "UNKNOWN"
+      ]
+     },
+     "kind": {
+      "type": "string",
+      "nullable": true,
+      "enum": [
+       "WORKFLOW",
+       "AGENT",
+       "HUMAN_TASK",
+       "REVIEW_ACTIVITY",
+       "CHILD_WORKFLOW"
+      ]
+     },
+     "result": {
+      "description": "Any JSON value; null until the run completes",
+      "type": "object"
+     },
+     "errorMessage": {
+      "type": "string",
+      "nullable": true
+     },
+     "activityInvocations": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/ActivityInvocation"
+      }
+     }
+    }
+   },
+   "ActivityInvocation": {
+    "type": "object",
+    "properties": {
+     "activityName": {
+      "type": "string"
+     },
+     "displayName": {
+      "type": "string",
+      "nullable": true,
+      "description": "The activity's @display label"
+     },
+     "input": {
+      "type": "array",
+      "items": {
+       "type": "object"
+      }
+     },
+     "output": {
+      "description": "Any JSON value; null unless the activity returned one",
+      "type": "object"
+     },
+     "status": {
+      "type": "string"
+     },
+     "errorMessage": {
+      "type": "string",
+      "nullable": true
+     },
+     "attempt": {
+      "type": "integer"
+     }
+    }
+   },
+   "WorkflowInstanceSummary": {
+    "type": "object",
+    "properties": {
+     "namespace": {
+      "type": "string"
+     },
+     "taskQueue": {
+      "type": "string"
+     },
+     "workflowId": {
+      "type": "string"
+     },
+     "runId": {
+      "type": "string"
+     },
+     "workflowType": {
+      "type": "string"
+     },
+     "status": {
+      "type": "string"
+     },
+     "kind": {
+      "type": "string",
+      "nullable": true
+     },
+     "startTime": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "closeTime": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     }
+    }
+   },
+   "WorkflowInstancePage": {
+    "type": "object",
+    "properties": {
+     "items": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/WorkflowInstanceSummary"
+      }
+     },
+     "nextPageToken": {
+      "type": "string",
+      "nullable": true
+     },
+     "hasMore": {
+      "type": "boolean"
+     }
+    }
+   },
+   "WorkflowHandle": {
+    "type": "object",
+    "properties": {
+     "workflowId": {
+      "type": "string"
+     },
+     "runId": {
+      "type": "string"
+     },
+     "started": {
+      "type": "boolean",
+      "description": "false when the start joined an instance already running under the id"
+     }
+    }
+   },
+   "TaskSummary": {
+    "type": "object",
+    "description": "What every task instance reports in a list, whichever kind it is",
+    "properties": {
+     "kind": {
+      "type": "string",
+      "enum": [
+       "HUMAN_TASK",
+       "REVIEW_ACTIVITY"
+      ]
+     },
+     "taskId": {
+      "type": "string"
+     },
+     "taskName": {
+      "type": "string"
+     },
+     "title": {
+      "type": "string"
+     },
+     "description": {
+      "type": "string"
+     },
+     "namespace": {
+      "type": "string"
+     },
+     "taskQueue": {
+      "type": "string"
+     },
+     "parentWorkflowId": {
+      "type": "string"
+     },
+     "parentWorkflowType": {
+      "type": "string",
+      "nullable": true
+     },
+     "stepId": {
+      "type": "string",
+      "nullable": true,
+      "description": "The call site that created the task"
+     },
+     "status": {
+      "type": "string"
+     },
+     "startTime": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "closeTime": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "userRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "users": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedUsers": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "administratorRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "administratorUsers": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "completedBy": {
+      "type": "string",
+      "nullable": true
+     },
+     "completedAt": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "completedAs": {
+      "type": "string",
+      "nullable": true,
+      "enum": [
+       "audience",
+       "administrator"
+      ]
+     },
+     "canComplete": {
+      "type": "boolean"
+     },
+     "canAdminister": {
+      "type": "boolean"
+     }
+    }
+   },
+   "TaskAudience": {
+    "type": "object",
+    "properties": {
+     "userRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "users": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedUsers": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    }
+   },
+   "TaskAdministration": {
+    "type": "object",
+    "properties": {
+     "success": {
+      "type": "boolean"
+     },
+     "action": {
+      "type": "string",
+      "enum": [
+       "reassign",
+       "extendDeadline"
+      ]
+     },
+     "administeredBy": {
+      "type": "string"
+     },
+     "administeredAt": {
+      "type": "string",
+      "format": "date-time"
+     }
+    }
+   },
+   "HumanTaskSummary": {
+    "type": "object",
+    "properties": {
+     "kind": {
+      "type": "string",
+      "enum": [
+       "HUMAN_TASK",
+       "REVIEW_ACTIVITY"
+      ]
+     },
+     "taskId": {
+      "type": "string"
+     },
+     "taskName": {
+      "type": "string"
+     },
+     "title": {
+      "type": "string"
+     },
+     "description": {
+      "type": "string"
+     },
+     "namespace": {
+      "type": "string"
+     },
+     "taskQueue": {
+      "type": "string"
+     },
+     "parentWorkflowId": {
+      "type": "string"
+     },
+     "parentWorkflowType": {
+      "type": "string",
+      "nullable": true
+     },
+     "stepId": {
+      "type": "string",
+      "nullable": true,
+      "description": "The call site that created the task"
+     },
+     "status": {
+      "type": "string"
+     },
+     "startTime": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "closeTime": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "userRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "users": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedUsers": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "administratorRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "administratorUsers": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "completedBy": {
+      "type": "string",
+      "nullable": true
+     },
+     "completedAt": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "completedAs": {
+      "type": "string",
+      "nullable": true,
+      "enum": [
+       "audience",
+       "administrator"
+      ]
+     },
+     "canComplete": {
+      "type": "boolean"
+     },
+     "canAdminister": {
+      "type": "boolean"
+     }
+    }
+   },
+   "HumanTaskPage": {
+    "type": "object",
+    "properties": {
+     "items": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/HumanTaskSummary"
+      }
+     },
+     "nextPageToken": {
+      "type": "string",
+      "nullable": true
+     },
+     "hasMore": {
+      "type": "boolean"
+     }
+    }
+   },
+   "HumanTaskInfo": {
+    "type": "object",
+    "properties": {
+     "kind": {
+      "type": "string",
+      "enum": [
+       "HUMAN_TASK",
+       "REVIEW_ACTIVITY"
+      ]
+     },
+     "taskId": {
+      "type": "string"
+     },
+     "taskName": {
+      "type": "string"
+     },
+     "title": {
+      "type": "string"
+     },
+     "description": {
+      "type": "string"
+     },
+     "namespace": {
+      "type": "string"
+     },
+     "taskQueue": {
+      "type": "string"
+     },
+     "parentWorkflowId": {
+      "type": "string"
+     },
+     "parentWorkflowType": {
+      "type": "string",
+      "nullable": true
+     },
+     "stepId": {
+      "type": "string",
+      "nullable": true,
+      "description": "The call site that created the task"
+     },
+     "status": {
+      "type": "string"
+     },
+     "startTime": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "closeTime": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "userRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "users": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedUsers": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "administratorRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "administratorUsers": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "completedBy": {
+      "type": "string",
+      "nullable": true
+     },
+     "completedAt": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "completedAs": {
+      "type": "string",
+      "nullable": true,
+      "enum": [
+       "audience",
+       "administrator"
+      ]
+     },
+     "canComplete": {
+      "type": "boolean"
+     },
+     "canAdminister": {
+      "type": "boolean"
+     },
+     "createdAt": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "formSchema": {
+      "type": "string",
+      "nullable": true
+     },
+     "taskInput": {
+      "type": "object",
+      "nullable": true
+     },
+     "result": {
+      "description": "The value submitted on completion: any JSON value, null while pending",
+      "type": "object"
+     }
+    },
+    "description": "One task with its input, description, and completion metadata"
+   },
+   "ReviewActivitySummary": {
+    "type": "object",
+    "properties": {
+     "kind": {
+      "type": "string",
+      "enum": [
+       "HUMAN_TASK",
+       "REVIEW_ACTIVITY"
+      ]
+     },
+     "taskId": {
+      "type": "string"
+     },
+     "taskName": {
+      "type": "string"
+     },
+     "title": {
+      "type": "string"
+     },
+     "description": {
+      "type": "string"
+     },
+     "namespace": {
+      "type": "string"
+     },
+     "taskQueue": {
+      "type": "string"
+     },
+     "parentWorkflowId": {
+      "type": "string"
+     },
+     "parentWorkflowType": {
+      "type": "string",
+      "nullable": true
+     },
+     "stepId": {
+      "type": "string",
+      "nullable": true,
+      "description": "The call site that created the task"
+     },
+     "status": {
+      "type": "string"
+     },
+     "startTime": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "closeTime": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "userRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "users": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedUsers": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "administratorRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "administratorUsers": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "completedBy": {
+      "type": "string",
+      "nullable": true
+     },
+     "completedAt": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "completedAs": {
+      "type": "string",
+      "nullable": true,
+      "enum": [
+       "audience",
+       "administrator"
+      ]
+     },
+     "canComplete": {
+      "type": "boolean"
+     },
+     "canAdminister": {
+      "type": "boolean"
+     },
+     "activityName": {
+      "type": "string"
+     },
+     "trigger": {
+      "type": "string",
+      "enum": [
+       "PRE_RUN",
+       "ON_FAILURE"
+      ]
+     }
+    }
+   },
+   "ReviewActivityPage": {
+    "type": "object",
+    "properties": {
+     "items": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/ReviewActivitySummary"
+      }
+     },
+     "nextPageToken": {
+      "type": "string",
+      "nullable": true
+     },
+     "hasMore": {
+      "type": "boolean"
+     }
+    }
+   },
+   "ReviewActivityInfo": {
+    "type": "object",
+    "properties": {
+     "kind": {
+      "type": "string",
+      "enum": [
+       "HUMAN_TASK",
+       "REVIEW_ACTIVITY"
+      ]
+     },
+     "taskId": {
+      "type": "string"
+     },
+     "taskName": {
+      "type": "string"
+     },
+     "title": {
+      "type": "string"
+     },
+     "description": {
+      "type": "string"
+     },
+     "namespace": {
+      "type": "string"
+     },
+     "taskQueue": {
+      "type": "string"
+     },
+     "parentWorkflowId": {
+      "type": "string"
+     },
+     "parentWorkflowType": {
+      "type": "string",
+      "nullable": true
+     },
+     "stepId": {
+      "type": "string",
+      "nullable": true,
+      "description": "The call site that created the task"
+     },
+     "status": {
+      "type": "string"
+     },
+     "startTime": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "closeTime": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "userRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "users": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedUsers": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "excludedRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "administratorRoles": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "administratorUsers": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "completedBy": {
+      "type": "string",
+      "nullable": true
+     },
+     "completedAt": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "completedAs": {
+      "type": "string",
+      "nullable": true,
+      "enum": [
+       "audience",
+       "administrator"
+      ]
+     },
+     "canComplete": {
+      "type": "boolean"
+     },
+     "canAdminister": {
+      "type": "boolean"
+     },
+     "activityName": {
+      "type": "string"
+     },
+     "trigger": {
+      "type": "string",
+      "enum": [
+       "PRE_RUN",
+       "ON_FAILURE"
+      ]
+     },
+     "createdAt": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "formSchema": {
+      "type": "string",
+      "nullable": true
+     },
+     "taskInput": {
+      "type": "object",
+      "nullable": true,
+      "description": "The activity's proposed named arguments"
+     },
+     "errorMessage": {
+      "type": "string"
+     },
+     "decision": {
+      "type": "object",
+      "nullable": true,
+      "description": "The recorded decision, once made"
+     }
+    },
+    "description": "One review with the activity's proposed arguments and failure context"
+   },
+   "BulkRetryResult": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "retry",
+       "fail"
+      ]
+     },
+     "requested": {
+      "type": "integer"
+     },
+     "applied": {
+      "type": "integer"
+     },
+     "skipped": {
+      "type": "integer"
+     },
+     "failed": {
+      "type": "integer"
+     },
+     "items": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "taskId": {
+         "type": "string"
+        },
+        "outcome": {
+         "type": "string"
+        },
+        "reason": {
+         "type": "string",
+         "nullable": true
+        }
+       }
+      }
+     },
+     "decidedBy": {
+      "type": "string"
+     },
+     "decidedAt": {
+      "type": "string",
+      "format": "date-time"
+     }
+    }
+   },
+   "ResetPoint": {
+    "type": "object",
+    "properties": {
+     "eventId": {
+      "type": "integer"
+     },
+     "eventType": {
+      "type": "string"
+     },
+     "timestamp": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "nodeIds": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "nodeNames": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "isFirstFailure": {
+      "type": "boolean"
+     }
+    }
+   },
+   "HistoryEvent": {
+    "type": "object",
+    "properties": {
+     "eventId": {
+      "type": "integer"
+     },
+     "eventType": {
+      "type": "string"
+     },
+     "timestamp": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "details": {
+      "type": "object",
+      "nullable": true
+     }
+    }
+   },
+   "ActivityTreeNode": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "name": {
+      "type": "string"
+     },
+     "type": {
+      "type": "string"
+     },
+     "status": {
+      "type": "string"
+     },
+     "startTime": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "endTime": {
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "input": {
+      "description": "Any JSON value; null unless the step recorded one",
+      "type": "object"
+     },
+     "output": {
+      "description": "Any JSON value; null unless the step recorded one",
+      "type": "object"
+     },
+     "failure": {
+      "type": "object",
+      "nullable": true
+     },
+     "attempt": {
+      "type": "integer"
+     },
+     "stepId": {
+      "type": "string",
+      "nullable": true
+     },
+     "displayName": {
+      "type": "string",
+      "nullable": true,
+      "description": "An activity's @display label or a human task's title"
+     },
+     "children": {
+      "type": "array",
+      "items": {
+       "type": "object"
+      }
+     }
+    }
+   },
+   "ExecutionGraph": {
+    "type": "object",
+    "properties": {
+     "nodes": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "id": {
+         "type": "string"
+        },
+        "label": {
+         "type": "string"
+        },
+        "displayName": {
+         "type": "string",
+         "nullable": true
+        },
+        "type": {
+         "type": "string"
+        },
+        "status": {
+         "type": "string"
+        },
+        "metadata": {
+         "type": "object",
+         "nullable": true
+        }
+       }
+      }
+     },
+     "edges": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "source": {
+         "type": "string"
+        },
+        "target": {
+         "type": "string"
+        },
+        "label": {
+         "type": "string",
+         "nullable": true
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

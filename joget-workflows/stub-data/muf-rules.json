@@ -1,0 +1,87 @@
+{
+  "source": "Stub of the Joget decision tables, values from muf-poc/decision-table-plan/data/muf.js (RS-1.0). Replaced by the Joget API Builder endpoint once published.",
+  "ruleSets": [
+    {
+      "version": "RS-1.0",
+      "effectiveFrom": "2026-10-12",
+      "tables": {
+        "DT-01": {"hit": "collect", "rows": [
+          {"n": 1, "when": [["age_at_application", "lt", 21]], "out": {"code": "K-01"}},
+          {"n": 2, "when": [["age_at_maturity", "gt", 65]], "out": {"code": "K-01"}},
+          {"n": 3, "when": [["nik_on_blacklist", "eq", "yes"]], "out": {"code": "K-02"}},
+          {"n": 4, "when": [["mobile_or_account_flagged", "eq", "yes"]], "out": {"code": "K-03"}}
+        ]},
+        "DT-03": {"hit": "collect", "rows": [
+          {"n": 1, "when": [["open_count", "ge", 1]], "out": {"flag": "DUP"}},
+          {"n": 2, "when": [["days_since_latest", "le", 90]], "out": {"flag": "DUP"}}
+        ]},
+        "DT-04": {"hit": "sum", "sumField": "points", "rows": [
+          {"n": 1, "when": [["bureau_score", "ge", 750]], "out": {"factor": "F1", "points": 30}},
+          {"n": 2, "when": [["bureau_score", "between", [700, 749]]], "out": {"factor": "F1", "points": 24}},
+          {"n": 3, "when": [["bureau_score", "between", [650, 699]]], "out": {"factor": "F1", "points": 18}},
+          {"n": 4, "when": [["bureau_score", "between", [600, 649]]], "out": {"factor": "F1", "points": 10}},
+          {"n": 5, "when": [["bureau_score", "lt", 600]], "out": {"factor": "F1", "points": 0}},
+          {"n": 6, "when": [["dsr", "between", [0, 30.0]]], "out": {"factor": "F2", "points": 25}},
+          {"n": 7, "when": [["dsr", "between", [30.1, 35.0]]], "out": {"factor": "F2", "points": 20}},
+          {"n": 8, "when": [["dsr", "between", [35.1, 40.0]]], "out": {"factor": "F2", "points": 14}},
+          {"n": 9, "when": [["dsr", "between", [40.1, 45.0]]], "out": {"factor": "F2", "points": 8}},
+          {"n": 10, "when": [["dsr", "between", [45.1, 50.0]]], "out": {"factor": "F2", "points": 3}},
+          {"n": 11, "when": [["dsr", "gt", 50.0]], "out": {"factor": "F2", "points": 0}},
+          {"n": 12, "when": [["employment_years", "ge", 5]], "out": {"factor": "F3", "points": 15}},
+          {"n": 13, "when": [["employment_years", "ge", 3], ["employment_years", "lt", 5]], "out": {"factor": "F3", "points": 12}},
+          {"n": 14, "when": [["employment_years", "ge", 1], ["employment_years", "lt", 3]], "out": {"factor": "F3", "points": 8}},
+          {"n": 15, "when": [["employment_years", "lt", 1]], "out": {"factor": "F3", "points": 3}},
+          {"n": 16, "when": [["product", "eq", "PRD-01"], ["dp_pct", "ge", 30]], "out": {"factor": "F4", "points": 10}},
+          {"n": 17, "when": [["product", "eq", "PRD-01"], ["dp_pct", "ge", 20], ["dp_pct", "lt", 30]], "out": {"factor": "F4", "points": 7}},
+          {"n": 18, "when": [["product", "eq", "PRD-01"], ["dp_pct", "ge", 10], ["dp_pct", "lt", 20]], "out": {"factor": "F4", "points": 4}},
+          {"n": 19, "when": [["product", "eq", "PRD-01"], ["dp_pct", "lt", 10]], "out": {"factor": "F4", "points": 0}},
+          {"n": 20, "when": [["product", "eq", "PRD-02"]], "out": {"factor": "F4", "points": 5}},
+          {"n": 21, "when": [["residence_status", "eq", "Owned"]], "out": {"factor": "F5", "points": 10}},
+          {"n": 22, "when": [["residence_status", "in", ["Family", "Official"]]], "out": {"factor": "F5", "points": 7}},
+          {"n": 23, "when": [["residence_status", "eq", "Rented"], ["residence_years", "ge", 2]], "out": {"factor": "F5", "points": 6}},
+          {"n": 24, "when": [["residence_status", "eq", "Rented"], ["residence_years", "lt", 2]], "out": {"factor": "F5", "points": 3}},
+          {"n": 25, "when": [["history_class", "eq", "Current"]], "out": {"factor": "F6", "points": 10}},
+          {"n": 26, "when": [["history_class", "eq", "New"]], "out": {"factor": "F6", "points": 5}},
+          {"n": 27, "when": [["history_class", "eq", "Arrears30"]], "out": {"factor": "F6", "points": 3}},
+          {"n": 28, "when": [["history_class", "eq", "ArrearsOver30"]], "out": {"factor": "F6", "points": 0}}
+        ]},
+        "DT-05": {"hit": "unique", "rows": [
+          {"n": 1, "when": [["score", "ge", 80]], "out": {"grade": "A"}},
+          {"n": 2, "when": [["score", "between", [65, 79]]], "out": {"grade": "B"}},
+          {"n": 3, "when": [["score", "between", [50, 64]]], "out": {"grade": "C"}},
+          {"n": 4, "when": [["score", "between", [35, 49]]], "out": {"grade": "D"}},
+          {"n": 5, "when": [["score", "lt", 35]], "out": {"grade": "E"}}
+        ]},
+        "DT-06": {"hit": "first", "rows": [
+          {"n": 1, "when": [["knockout_count", "ge", 1]], "out": {"outcome": "Auto reject"}},
+          {"n": 2, "when": [["grade", "eq", "E"]], "out": {"outcome": "Auto reject"}},
+          {"n": 3, "when": [["dsr", "gt", 50.0]], "out": {"outcome": "Auto reject"}},
+          {"n": 4, "when": [["amount", "gt", 500000000]], "out": {"outcome": "T3"}},
+          {"n": 5, "when": [["exception_count", "ge", 2]], "out": {"outcome": "T3"}},
+          {"n": 6, "when": [["dsr", "between", [45.1, 50.0]]], "out": {"outcome": "T3"}},
+          {"n": 7, "when": [["related_party", "eq", "yes"]], "out": {"outcome": "T3"}},
+          {"n": 8, "when": [["total_exposure", "gt", 10000000000]], "out": {"outcome": "T3"}},
+          {"n": 9, "when": [["npl_restructuring_amount", "gt", 500000000]], "out": {"outcome": "T3"}},
+          {"n": 10, "when": [["amount", "gt", 100000000], ["amount", "le", 500000000]], "out": {"outcome": "T2"}},
+          {"n": 11, "when": [["grade", "eq", "D"]], "out": {"outcome": "T2"}},
+          {"n": 12, "when": [["dsr", "between", [40.1, 45.0]]], "out": {"outcome": "T2"}},
+          {"n": 13, "when": [["exception_count", "eq", 1]], "out": {"outcome": "T2"}},
+          {"n": 14, "when": [["grade", "in", ["A", "B"]], ["amount", "le", 25000000], ["dsr", "le", 35.0], ["collect_12m", "eq", 1], ["exception_count", "eq", 0], ["dup_flag", "eq", "no"]], "out": {"outcome": "T0"}},
+          {"n": 15, "when": [], "out": {"outcome": "T1"}}
+        ]},
+        "DT-08": {"hit": "collect", "rows": [
+          {"n": 1, "when": [["route_level", "eq", "T1"], ["amount", "le", 100000000]], "out": {"username": "analis.01"}},
+          {"n": 2, "when": [["route_level", "eq", "T1"], ["amount", "le", 100000000]], "out": {"username": "analis.02"}},
+          {"n": 3, "when": [["route_level", "eq", "T2"], ["amount", "le", 500000000]], "out": {"username": "manajer.01"}},
+          {"n": 4, "when": [["route_level", "eq", "T2"], ["amount", "le", 500000000]], "out": {"username": "manajer.02"}},
+          {"n": 5, "when": [["route_level", "eq", "T3"], ["amount", "le", 2000000000]], "out": {"username": "kadiv.01"}},
+          {"n": 6, "when": [["route_level", "eq", "T3"], ["amount", "le", 2000000000]], "out": {"username": "kadiv.02"}}
+        ]},
+        "DT-10": {"hit": "unique", "rows": [
+          {"n": 1, "when": [["route_level", "eq", "T1"]], "out": {"route_level": "T2"}},
+          {"n": 2, "when": [["route_level", "eq", "T2"]], "out": {"route_level": "T3"}}
+        ]}
+      }
+    }
+  ]
+}
